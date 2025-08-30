@@ -6,7 +6,6 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Sale;
-use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,14 +14,21 @@ class InvoiceController extends Controller
     public function create(Request $request)
     {
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
-        $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
-        // Fetch recent sales to attach (could filter by status if needed)
-        $sales = Sale::select('id', 'total_amount', 'status')->latest()->limit(100)->get();
+
+        $salesQuery = Sale::select('id', 'total_amount', 'status');
+        $selectedCustomerId = $request->get('customer_id');
+        if ($selectedCustomerId) {
+            $salesQuery->where('customer_id', $selectedCustomerId);
+        } else {
+            // If no customer selected, don't load all sales to reduce noise; return empty collection
+            $salesQuery->whereRaw('1 = 0');
+        }
+        $sales = $salesQuery->latest()->limit(200)->get();
 
         return Inertia::render('invoice/create', [
             'customers' => $customers,
-            'suppliers' => $suppliers,
             'sales' => $sales,
+            'selected_customer_id' => $selectedCustomerId,
         ]);
     }
 
@@ -30,14 +36,13 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
             'total_amount' => 'required|numeric|min:0',
             'status' => 'required|string|in:pending,paid,canceled',
             'customer_name' => 'nullable|string|max:255',
             'sales' => 'nullable|array',
             'sales.*' => 'exists:sales,id',
             'notes' => 'nullable|string|max:1000',
-            'type' => 'required|string|in:purchase,sale',
+            'type' => 'required|string|in:sale',
             'due_date' => 'nullable|date',
             'tax_amount' => 'nullable|numeric|min:0',
             'discount' => 'nullable|numeric|min:0',
@@ -60,7 +65,6 @@ class InvoiceController extends Controller
         $invoice = Invoice::create([
             'invoice_number' => $invoiceNumber,
             'type' => $request->type,
-            'supplier_id' => $request->supplier_id,
             'branch' => $branchName,
             'customer_id' => $request->customer_id,
             'customer_name' => $customerName ?? $request->customer_name,
@@ -72,18 +76,18 @@ class InvoiceController extends Controller
             'status' => $request->status,
         ]);
 
-        // Attach multiple sales if provided; optional line_total recompute
+        // Attach multiple sales if provided
         if ($request->filled('sales')) {
             $syncData = collect($request->sales)->mapWithKeys(fn ($saleId) => [$saleId => ['line_total' => null]])->toArray();
             $invoice->sales()->sync($syncData);
         }
 
-        return response()->json($invoice->load(['customer', 'supplier', 'sales']), 201);
+        return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
     }
 
     public function index(Request $request)
     {
-        $query = Invoice::query()->with(['customer:id,name', 'supplier:id,name', 'sales:id,total_amount,status']);
+    $query = Invoice::query()->with(['customer:id,name', 'sales:id,total_amount,status']);
 
         // Role-based scope: role 2 (admin) sees all, role 1 (cashier) limited to their branch
         $user = $request->user();
@@ -102,9 +106,7 @@ class InvoiceController extends Controller
         if ($status = $request->get('status')) {
             $query->where('status', $status);
         }
-        if ($type = $request->get('type')) {
-            $query->where('type', $type);
-        }
+    // Type fixed to sale now; no filtering by type
         if ($search = $request->get('q')) {
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
@@ -125,7 +127,7 @@ class InvoiceController extends Controller
                 'computed_sales_total' => $salesTotal,
                 'difference' => $invoice->total_amount - $salesTotal,
                 'customer' => $invoice->customer,
-                'supplier' => $invoice->supplier,
+                'supplier' => null,
                 'sales_count' => $invoice->sales->count(),
                 'sales' => $invoice->sales->map(fn ($s) => [
                     'id' => $s->id,
@@ -157,7 +159,7 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        $invoice = Invoice::with(['customer:id,name', 'supplier:id,name', 'sales:id,total_amount,status'])
+    $invoice = Invoice::with(['customer:id,name', 'sales:id,total_amount,status'])
             ->findOrFail($id);
 
         $salesTotal = $invoice->sales->sum('total_amount');
@@ -166,13 +168,14 @@ class InvoiceController extends Controller
             'invoice_number' => $invoice->invoice_number,
             'type' => $invoice->type,
             'status' => $invoice->status,
+            'branch' => $invoice->branch,
             'total_amount' => $invoice->total_amount,
             'tax_amount' => $invoice->tax_amount,
             'discount' => $invoice->discount,
             'computed_sales_total' => $salesTotal,
             'difference' => $invoice->total_amount - $salesTotal,
             'customer' => $invoice->customer,
-            'supplier' => $invoice->supplier,
+                'supplier' => null,
             'sales' => $invoice->sales->map(fn ($s) => [
                 'id' => $s->id,
                 'total_amount' => $s->total_amount,
@@ -192,38 +195,20 @@ class InvoiceController extends Controller
         $invoice = Invoice::findOrFail($id);
 
         $request->validate([
-            'customer_id' => 'nullable|exists:customers,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'total_amount' => 'sometimes|numeric|min:0',
-            'status' => 'sometimes|string|in:pending,paid,canceled',
-            'customer_name' => 'nullable|string|max:255',
-            'notes' => 'nullable|string|max:1000',
-            'due_date' => 'nullable|date',
-            'tax_amount' => 'nullable|numeric|min:0',
+            'status' => 'required|string|in:pending,paid,canceled',
             'discount' => 'nullable|numeric|min:0',
+            'tax_amount' => 'nullable|numeric|min:0',
+            'total_amount' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string|max:1000',
         ]);
-
-        $updateData = $request->only([
-            'customer_id', 'supplier_id', 'total_amount', 'status',
-            'customer_name', 'notes', 'due_date', 'tax_amount', 'discount',
-        ]);
-
-        // Update customer name if customer_id is provided
-        if ($request->customer_id) {
-            $customer = Customer::find($request->customer_id);
-            $updateData['customer_name'] = $customer->name;
-        }
-
-        $invoice->update($updateData);
-
-        return response()->json($invoice->load(['customer', 'supplier', 'sales']));
+        $invoice->update($request->only(['status', 'discount', 'tax_amount', 'total_amount', 'notes']));
+        return redirect()->route('invoices.show', $invoice->id)->with('success', 'Invoice updated.');
     }
 
     public function destroy($id)
     {
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
-
-        return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
+    return redirect()->route('invoices.index')->with('success', 'Invoice deleted.');
     }
 }

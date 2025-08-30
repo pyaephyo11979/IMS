@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useRef } from 'react';
 
 interface InvoiceSale {
@@ -18,6 +18,7 @@ interface InvoiceData {
     invoice_number: string;
     type: string;
     status: string;
+    branch?: string | null;
     total_amount: number;
     tax_amount: number;
     discount: number;
@@ -44,7 +45,7 @@ function statusVariant(status: string) {
 }
 
 export default function InvoiceInfo() {
-    const { invoice } = usePage().props as { invoice: InvoiceData };
+    const { invoice, auth } = usePage().props as unknown as { invoice: InvoiceData; auth: { user: { role: string | number } } };
     const printRef = useRef<HTMLDivElement | null>(null);
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -54,31 +55,30 @@ export default function InvoiceInfo() {
 
     function handlePrint() {
         if (!printRef.current) return;
-        const printContents = printRef.current.innerHTML;
+        const headHtml = document.querySelector('head')?.innerHTML || '';
+        const contentHtml = printRef.current.innerHTML;
         const win = window.open('', '_blank', 'width=900,height=1000');
         if (!win) return;
-        win.document.write(`<!DOCTYPE html><html><head><title>${invoice.invoice_number}</title><style>
-			body{ font-family: system-ui, sans-serif; padding:24px; }
-			h1{ font-size:1.25rem; margin:0 0 1rem; }
-			table{ width:100%; border-collapse: collapse; font-size:12px; }
-			th,td{ border:1px solid #ccc; padding:6px 8px; text-align:left; }
-			th{ background:#f5f5f5; }
-			.totals{ margin-top:16px; width:300px; margin-left:auto; }
-			.totals td{ border:none; padding:4px 0; }
-			.totals tr:last-child td{ font-weight:600; border-top:1px solid #000; }
-		</style></head><body>${printContents}</body></html>`);
+        win.document.write(`<!DOCTYPE html><html><head>${headHtml}<title>${invoice.invoice_number}</title><style>
+            @media print { .no-print { display:none !important; } }
+            body { background:#fff; }
+        </style></head><body>${contentHtml}</body></html>`);
         win.document.close();
         win.focus();
-        setTimeout(() => win.print(), 200);
+        setTimeout(() => win.print(), 300);
     }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={invoice.invoice_number} />
-            <div className="flex flex-col gap-8">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h1 className="text-xl font-semibold">Invoice {invoice.invoice_number}</h1>
-                    <div className="flex gap-2">
+            <AppLayout breadcrumbs={breadcrumbs}>
+                <Head title={invoice.invoice_number} />
+                <div className="flex flex-col gap-8 px-4 md:px-8 lg:px-10 max-w-7xl mx-auto my-2 w-full">
+                <div ref={printRef} className="flex flex-col gap-8">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-xl font-semibold">Invoice {invoice.invoice_number}</h1>
+                        {invoice.branch && <p className="text-xs text-muted-foreground">Branch: {invoice.branch}</p>}
+                    </div>
+                    <div className="flex gap-2 no-print">
                         <Button variant="outline" asChild>
                             <Link href="/invoices">Back</Link>
                         </Button>
@@ -162,33 +162,39 @@ export default function InvoiceInfo() {
                                     </Table>
                                     <div className="mt-6 flex justify-end">
                                         <div className="w-64 text-xs">
-                                            <div className="flex justify-between py-1">
-                                                <span>Subtotal</span>
-                                                <span>{invoice.computed_sales_total.toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex justify-between py-1">
-                                                <span>Discount</span>
-                                                <span>{invoice.discount?.toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex justify-between py-1">
-                                                <span>Tax</span>
-                                                <span>{invoice.tax_amount?.toLocaleString()}</span>
-                                            </div>
-                                            <div className="mt-1 flex justify-between border-t py-1 pt-2 font-semibold">
-                                                <span>Total</span>
-                                                <span>{invoice.total_amount.toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex justify-between py-1 text-muted-foreground">
-                                                <span>Diff</span>
-                                                <span>{invoice.difference.toLocaleString()}</span>
-                                            </div>
+                                            <div className="flex justify-between py-1"><span>Subtotal</span><span>{invoice.computed_sales_total.toLocaleString()} MMK</span></div>
+                                            <div className="flex justify-between py-1"><span>Discount</span><span>{invoice.discount?.toLocaleString()} MMK</span></div>
+                                            <div className="flex justify-between py-1"><span>Tax</span><span>{invoice.tax_amount?.toLocaleString()} MMK</span></div>
+                                            <div className="mt-1 flex justify-between border-t py-1 pt-2 font-semibold"><span>Total</span><span>{invoice.total_amount.toLocaleString()} MMK</span></div>
+                                            <div className="flex justify-between py-1 text-muted-foreground"><span>Diff</span><span>{invoice.difference.toLocaleString()} MMK</span></div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-10 flex items-center justify-between border-t pt-6 text-[10px] text-muted-foreground">
+                                        <div className="flex items-center gap-2">
+                                            <span className="inline-flex h-6 w-6 items-center justify-center rounded bg-muted text-[11px] font-semibold">🧾</span>
+                                            <span>Generated by IMS System</span>
+                                        </div>
+                                        <span>Date: {new Date().toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="mt-12 grid gap-8 sm:grid-cols-3 text-xs print:mt-16">
+                                        <div className="flex flex-col items-start gap-6">
+                                            <div className="w-full h-10 border-b" />
+                                            <span className="uppercase tracking-wide text-muted-foreground">Prepared By</span>
+                                        </div>
+                                        <div className="flex flex-col items-start gap-6">
+                                            <div className="w-full h-10 border-b" />
+                                            <span className="uppercase tracking-wide text-muted-foreground">Checked / Verified</span>
+                                        </div>
+                                        <div className="flex flex-col items-start gap-6">
+                                            <div className="w-full h-10 border-b" />
+                                            <span className="uppercase tracking-wide text-muted-foreground">Approved</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-6 no-print">
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-sm">Summary</CardTitle>
@@ -230,12 +236,46 @@ export default function InvoiceInfo() {
                                 <Button variant="outline" size="sm" onClick={handlePrint}>
                                     Print Invoice
                                 </Button>
-                                <Button asChild size="sm">
-                                    <Link href={`/invoices/${invoice.id}/edit`}>Edit (future)</Link>
-                                </Button>
                             </CardContent>
                         </Card>
+                        {String(auth?.user?.role) === '1' && (
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm">Update Status</CardTitle>
+                                    <CardDescription>Modify and save</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-3 text-xs">
+                                    <div className="flex items-center gap-2">
+                                        <label htmlFor="inv_status" className="w-16 text-muted-foreground">Status</label>
+                                        <select
+                                            id="inv_status"
+                                            defaultValue={invoice.status}
+                                            onChange={(e) => {
+                                                router.post(`/invoices/update/${invoice.id}`, { status: e.target.value }, { preserveScroll: true });
+                                            }}
+                                            className="flex-1 rounded border bg-background px-2 py-1"
+                                        >
+                                            <option value="pending">Pending</option>
+                                            <option value="paid">Paid</option>
+                                            <option value="canceled">Canceled</option>
+                                        </select>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => {
+                                            if (confirm('Delete this invoice?')) {
+                                                router.post(`/invoices/${invoice.id}`, {}, { preserveScroll: true });
+                                            }
+                                        }}
+                                    >
+                                        Delete Invoice
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
+                </div>
                 </div>
             </div>
         </AppLayout>

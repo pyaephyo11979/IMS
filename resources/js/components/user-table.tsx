@@ -32,7 +32,7 @@ export function UserTable({ users }: { users: any }) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {users.map((user: any) => (
+                        {users.data.map((user: any) => (
                             <TableRow key={user.id}>
                                 <TableCell>{user.name}</TableCell>
                                 <TableCell>{user.email}</TableCell>

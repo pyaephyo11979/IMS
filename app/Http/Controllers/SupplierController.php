@@ -9,11 +9,34 @@ use Inertia\Inertia;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Supplier::with('branch');
+
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+        if ($branch = $request->get('branch')) {
+            $query->where('branch_id', $branch);
+        }
+        if ($search = $request->get('q')) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $suppliers = $query->orderByDesc('id')->paginate(10)->withQueryString();
+
         return Inertia::render('supplier/index', [
-            'suppliers' => Supplier::with('branch')->orderByDesc('id')->get(),
-            'branches' => Branch::all(),
+            'suppliers' => $suppliers,
+            'branches' => Branch::select('id','name')->get(),
+            'filters' => [
+                'status' => $status ?? null,
+                'branch' => $branch ?? null,
+                'q' => $search ?? null,
+            ],
         ]);
     }
 

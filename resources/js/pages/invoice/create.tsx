@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { useMemo } from 'react';
 
 // Breadcrumbs for invoice creation
@@ -18,34 +18,45 @@ interface Customer {
     id: number | string;
     name: string;
 }
-interface Supplier {
-    id: number | string;
-    name: string;
-}
 interface SaleLite {
     id: number | string;
     total_amount: number;
     status: string;
 }
+type FormData = {
+    customer_id: string | number | '';
+    customer_name: string;
+    status: 'pending' | 'paid' | 'canceled';
+    sales: (string | number)[];
+    due_date: string;
+    discount_percent: number;
+    tax_percent: number;
+    discount: number;
+    tax_amount: number;
+    notes: string;
+    total_amount: number;
+    type: 'sale';
+};
 
 export default function CreateInvoice() {
-    const { customers = [], suppliers = [], sales = [] } = usePage().props as { customers: Customer[]; suppliers: Supplier[]; sales: SaleLite[] };
+    const pageProps = usePage().props as unknown as Partial<{ customers: Customer[]; sales: SaleLite[]; selected_customer_id: string | number | null }>;
+    const customers = useMemo(() => pageProps.customers ?? [], [pageProps.customers]);
+    const sales = useMemo(() => pageProps.sales ?? [], [pageProps.sales]);
+    const selectedCustomerId = pageProps.selected_customer_id ?? '';
 
-    // Using percent inputs locally, converting to absolute amounts on submit
-    const { data, setData, post, processing } = useForm({
-        customer_id: '',
-        supplier_id: '',
+    const { data, setData, post, processing } = useForm<FormData>({
+    customer_id: selectedCustomerId ? String(selectedCustomerId) : '',
         customer_name: '',
-        type: 'sale', // or 'purchase'
         status: 'pending',
-        sales: [] as (string | number)[],
+        sales: [],
         due_date: '',
         discount_percent: 0,
         tax_percent: 0,
-        discount: 0, // absolute (populated on submit)
-        tax_amount: 0, // absolute (populated on submit)
+        discount: 0,
+        tax_amount: 0,
         notes: '',
         total_amount: 0,
+        type: 'sale',
     });
 
     // Base from selected sales
@@ -61,33 +72,40 @@ export default function CreateInvoice() {
     const grandTotal = useMemo(() => Math.max(taxableBase + taxAmount, 0), [taxableBase, taxAmount]);
 
     function toggleSale(id: number | string) {
-        setData('sales', (prev) => {
-            const set = new Set(prev.map(String));
-            const key = String(id);
-            if (set.has(key)) {
-                return prev.filter((p) => String(p) !== key);
-            }
-            return [...prev, id];
-        });
+        const prev = Array.isArray(data.sales) ? data.sales : [];
+        const key = String(id);
+        const exists = prev.map(String).includes(key);
+        const next = exists ? prev.filter((p) => String(p) !== key) : [...prev, id];
+        setData('sales', next);
     }
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
         // Convert percent inputs to absolute amounts expected by backend
-        setData('discount', Number(discountAmount.toFixed(2)) as any);
-        setData('tax_amount', Number(taxAmount.toFixed(2)) as any);
-        setData('total_amount', Number(grandTotal.toFixed(2)) as any);
+    setData('discount', Number(discountAmount.toFixed(2)));
+    setData('tax_amount', Number(taxAmount.toFixed(2)));
+    setData('total_amount', Number(grandTotal.toFixed(2)));
         post('/invoices');
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Invoice" />
+            <div className="px-4 md:px-8 lg:px-10 w-full max-w-7xl mt-2 mx-auto">
             <form onSubmit={submit} className="mx-auto max-w-6xl space-y-10 rounded-lg border bg-background/50 p-6">
                 <div className="grid gap-6 md:grid-cols-3">
                     <div className="space-y-2">
                         <Label htmlFor="customer_id">Customer</Label>
-                        <Select value={data.customer_id} onValueChange={(v) => setData('customer_id', v)}>
+                        <Select
+                            value={String(data.customer_id)}
+                            onValueChange={(v) => {
+                                setData('customer_id', v);
+                                // Refresh page to load sales for this customer
+                                router.get('/invoices/create', { customer_id: v }, { preserveState: true, replace: true });
+                                // Reset selected sales when changing customer
+                                setData('sales', []);
+                            }}
+                        >
                             <SelectTrigger id="customer_id">
                                 <SelectValue placeholder="Select a customer" />
                             </SelectTrigger>
@@ -109,36 +127,10 @@ export default function CreateInvoice() {
                             placeholder="If not registered"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="supplier_id">Supplier (for purchases)</Label>
-                        <Select value={data.supplier_id} onValueChange={(v) => setData('supplier_id', v)}>
-                            <SelectTrigger id="supplier_id">
-                                <SelectValue placeholder="Select supplier" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {suppliers.map((s) => (
-                                    <SelectItem key={s.id} value={String(s.id)}>
-                                        {s.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="type">Type</Label>
-                        <Select value={data.type} onValueChange={(v) => setData('type', v)}>
-                            <SelectTrigger id="type">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="sale">Sale</SelectItem>
-                                <SelectItem value="purchase">Purchase</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {/* Removed supplier and purchase type fields; invoices are sales-only */}
                     <div className="space-y-2">
                         <Label htmlFor="status">Status</Label>
-                        <Select value={data.status} onValueChange={(v) => setData('status', v)}>
+                        <Select value={data.status} onValueChange={(v) => setData('status', v as FormData['status'])}>
                             <SelectTrigger id="status">
                                 <SelectValue />
                             </SelectTrigger>
@@ -157,7 +149,12 @@ export default function CreateInvoice() {
 
                 <div className="space-y-4">
                     <Label className="text-sm font-medium">Attach Sales</Label>
-                    {sales.length === 0 && <p className="text-sm text-muted-foreground">No sales available to attach right now.</p>}
+                    {(!data.customer_id || data.customer_id === '') && (
+                        <p className="text-sm text-muted-foreground">Select a customer to load their sales.</p>
+                    )}
+                    {data.customer_id && sales.length === 0 && (
+                        <p className="text-sm text-muted-foreground">No sales found for this customer.</p>
+                    )}
                     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                         {sales.map((sale) => {
                             const checked = data.sales.map(String).includes(String(sale.id));
@@ -231,6 +228,7 @@ export default function CreateInvoice() {
                     </Button>
                 </div>
             </form>
+            </div>
         </AppLayout>
     );
 }

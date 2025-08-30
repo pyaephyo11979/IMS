@@ -35,6 +35,7 @@ interface InvoiceItem {
     created_at?: string;
 }
 
+interface AuthUser { role: string | number }
 interface PageProps {
     invoices: {
         data: InvoiceItem[];
@@ -47,6 +48,7 @@ interface PageProps {
     };
     filters: { status?: string | null; type?: string | null; q?: string | null };
     summary: { total: number; pending: number; paid: number; canceled: number };
+    auth: { user: AuthUser };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Invoices', href: '/invoices' }];
@@ -65,25 +67,21 @@ function statusVariant(status: string) {
 }
 
 export default function InvoiceIndex() {
-    const { invoices, filters, summary } = usePage().props as unknown as PageProps;
+    const { invoices, filters, summary, auth } = usePage().props as unknown as PageProps;
     const [local, setLocal] = useState({
-        status: filters.status || '',
-        type: filters.type || '',
+        status: filters.status || 'all',
+        type: filters.type || 'all',
         q: filters.q || '',
     });
 
     function applyFilters(partial?: Partial<typeof local>) {
         const next = { ...local, ...(partial || {}) };
         setLocal(next);
-        router.get(
-            '/invoices',
-            {
-                status: next.status || undefined,
-                type: next.type || undefined,
-                q: next.q || undefined,
-            },
-            { preserveState: true, replace: true },
-        );
+        router.get('/invoices', {
+            status: next.status === 'all' ? undefined : next.status,
+            type: next.type === 'all' ? undefined : next.type,
+            q: next.q || undefined,
+        }, { preserveState: true, replace: true });
     }
 
     const diffTotals = useMemo(() => {
@@ -95,7 +93,7 @@ export default function InvoiceIndex() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Invoices" />
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col mt-2 gap-8 px-4 md:px-8 lg:px-10 max-w-7xl  w-full">
                 <div className="grid gap-4 md:grid-cols-4">
                     <Card>
                         <CardHeader>
@@ -133,12 +131,12 @@ export default function InvoiceIndex() {
                 <div className="flex flex-wrap items-end gap-3">
                     <div className="w-40">
                         <label className="mb-1 block text-xs font-medium">Status</label>
-                        <Select value={local.status} onValueChange={(v) => applyFilters({ status: v })}>
+            <Select value={local.status} onValueChange={(v) => applyFilters({ status: v })}>
                             <SelectTrigger>
-                                <SelectValue placeholder="All" />
+                <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                                 <SelectItem value="pending">Pending</SelectItem>
                                 <SelectItem value="paid">Paid</SelectItem>
                                 <SelectItem value="canceled">Canceled</SelectItem>
@@ -147,12 +145,12 @@ export default function InvoiceIndex() {
                     </div>
                     <div className="w-40">
                         <label className="mb-1 block text-xs font-medium">Type</label>
-                        <Select value={local.type} onValueChange={(v) => applyFilters({ type: v })}>
+            <Select value={local.type} onValueChange={(v) => applyFilters({ type: v })}>
                             <SelectTrigger>
-                                <SelectValue placeholder="All" />
+                <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="">All</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                                 <SelectItem value="sale">Sale</SelectItem>
                                 <SelectItem value="purchase">Purchase</SelectItem>
                             </SelectContent>
@@ -175,17 +173,19 @@ export default function InvoiceIndex() {
                     <Button
                         variant="outline"
                         onClick={() => {
-                            setLocal({ status: '', type: '', q: '' });
-                            applyFilters({ status: '', type: '', q: '' });
+                            setLocal({ status: 'all', type: 'all', q: '' });
+                            applyFilters({ status: 'all', type: 'all', q: '' });
                         }}
                     >
                         Reset
                     </Button>
-                    <div className="ml-auto">
-                        <Button asChild>
-                            <Link href="/invoices/create">New Invoice</Link>
-                        </Button>
-                    </div>
+                    {String(auth?.user?.role) === '1' && (
+                        <div className="ml-auto">
+                            <Button asChild>
+                                <Link href="/invoices/create">New Invoice</Link>
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="rounded-xl border bg-card">

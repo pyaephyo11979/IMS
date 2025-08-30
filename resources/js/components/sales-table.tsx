@@ -65,7 +65,7 @@ export function SaleTable({ sales }: { sales: SaleRecord[] }) {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {sales.map((sale: SaleRecord) => (
+                    {sales.data.map((sale: SaleRecord) => (
                         <TableRow key={sale.id}>
                             <TableCell className="font-medium">{sale.id}</TableCell>
                             <TableCell>{sale.product.name}</TableCell>

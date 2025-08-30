@@ -12,16 +12,51 @@ class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->user()->isAdmin()) {
-            $sales = Sale::with(['customer', 'branch', 'product'])->get();
-        } else {
-            $sales = Sale::with(['customer', 'branch', 'product'])
-                ->where('branch_id', $request->user()->branch_id)
-                ->get();
+        $query = Sale::with(['customer', 'branch', 'product']);
+
+        // Role restriction
+        if (!$request->user()->isAdmin()) {
+            $query->where('branch_id', $request->user()->branch_id);
         }
+
+        // Filters
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+        if ($product = $request->get('product')) {
+            $query->where('product_id', $product);
+        }
+        if ($customer = $request->get('customer')) {
+            $query->where(function($q) use ($customer) {
+                $q->where('customer_name','like',"%{$customer}%")
+                  ->orWhereHas('customer', fn($cq) => $cq->where('name','like',"%{$customer}%"));
+            });
+        }
+        if ($search = $request->get('q')) {
+            $query->where(function($q) use ($search) {
+                $q->where('id', $search)
+                  ->orWhere('customer_name','like',"%{$search}%");
+            });
+        }
+        if ($dateFrom = $request->get('from')) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo = $request->get('to')) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        $sales = $query->latest()->paginate(15)->withQueryString();
 
         return Inertia::render('sale/index', [
             'sales' => $sales,
+            'filters' => [
+                'status' => $status ?? null,
+                'product' => $product ?? null,
+                'customer' => $customer ?? null,
+                'q' => $search ?? null,
+                'from' => $dateFrom ?? null,
+                'to' => $dateTo ?? null,
+            ],
         ]);
     }
 

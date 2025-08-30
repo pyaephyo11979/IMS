@@ -13,7 +13,6 @@ class Invoice extends Model
     protected $fillable = [
         'invoice_number',
         'type',
-        'supplier_id',
         'total_amount',
         'tax_amount',
         'discount',
@@ -31,10 +30,7 @@ class Invoice extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class);
-    }
+    // Supplier removed: invoices are sales-only
 
     public function sales()
     {

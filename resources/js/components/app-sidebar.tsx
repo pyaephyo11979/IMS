@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { BookOpen, Building2, ChartLine, Folder, LayoutGrid, PackageCheck, Paper, Users, UsersRound } from 'lucide-react';
+import { BookOpen, Building2, ChartLine, Folder, LayoutGrid, PackageCheck, ReceiptText, Users, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
@@ -58,7 +58,7 @@ export function AppSidebar() {
                   {
                       title: 'Invoices',
                       href: '/invoices',
-                      icon: Paper,
+                      icon: ReceiptText,
                   },
               ]
             : [
@@ -80,7 +80,7 @@ export function AppSidebar() {
                   {
                       title: 'Invoices',
                       href: '/invoices',
-                      icon: Paper,
+                      icon: ReceiptText,
                   },
               ];
     return (

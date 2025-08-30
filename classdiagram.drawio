@@ -1,61 +1,174 @@
-<mxfile host="65bd71144e">
-    <diagram id="CWMukBL_cRmZJIWaCqDw" name="Page-1">
-        <mxGraphModel dx="5102" dy="3697" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2339" pageHeight="3300" math="0" shadow="0">
+<mxfile host="app.diagrams.net" modified="2025-08-30T00:00:00Z" agent="IMS-AI" version="22.0.0" type="device">
+    <!-- Page 1: Class Diagram -->
+    <diagram id="IMS_CLASSES" name="Class Diagram">
+        <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="10" value="Branch" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="-2540" y="-580" width="160" height="140" as="geometry">
-                        <mxRectangle x="-2540" y="-580" width="80" height="30" as="alternateBounds"/>
-                    </mxGeometry>
+                <!-- Branch -->
+                <mxCell id="cls_branch" value="Branch" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="40" width="180" height="170" as="geometry"/>
                 </mxCell>
-                <mxCell id="11" value="+ id: int&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ address: string&lt;/div&gt;&lt;div&gt;+ contact_number: string&lt;/div&gt;&lt;div&gt;+ status: string&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="10">
-                    <mxGeometry y="26" width="160" height="114" as="geometry"/>
+                <mxCell id="cls_branch_fields" value="+ id: BIGINT PK&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ address: string&lt;/div&gt;&lt;div&gt;+ contact_number: string&lt;/div&gt;&lt;div&gt;+ status: string&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_branch">
+                    <mxGeometry y="28" width="180" height="142" as="geometry"/>
                 </mxCell>
-                <mxCell id="19" value="User" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="-2540" y="-360" width="160" height="160" as="geometry">
-                        <mxRectangle x="-2540" y="-360" width="70" height="30" as="alternateBounds"/>
-                    </mxGeometry>
+                <!-- User -->
+                <mxCell id="cls_user" value="User" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="250" width="180" height="200" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="+ id: int&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ email: string&lt;/div&gt;&lt;div&gt;+ password: string&lt;/div&gt;&lt;div&gt;+ role: string&lt;/div&gt;&lt;div&gt;+ branch_id: int&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="19">
-                    <mxGeometry y="26" width="160" height="134" as="geometry"/>
+                <mxCell id="cls_user_fields" value="+ id: BIGINT PK&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ email: string&lt;/div&gt;&lt;div&gt;+ password: string&lt;/div&gt;&lt;div&gt;+ role: enum&lt;/div&gt;&lt;div&gt;+ branch_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_user">
+                    <mxGeometry y="28" width="180" height="172" as="geometry"/>
                 </mxCell>
-                <mxCell id="26" value="Product" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="-2300" y="-580" width="160" height="200" as="geometry">
-                        <mxRectangle x="-2300" y="-580" width="80" height="30" as="alternateBounds"/>
-                    </mxGeometry>
+                <!-- Supplier -->
+                <mxCell id="cls_supplier" value="Supplier" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="40" width="210" height="240" as="geometry"/>
                 </mxCell>
-                <mxCell id="27" value="+ id: int&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ description: string&lt;/div&gt;&lt;div&gt;+ price: double&lt;/div&gt;&lt;div&gt;+ stock_quantity: int&lt;/div&gt;&lt;div&gt;+ supplier_id: int&lt;/div&gt;&lt;div&gt;+ branch_id: int&lt;/div&gt;&lt;div&gt;+ category_id: int&lt;/div&gt;&lt;div&gt;+ low_stock_notified: bool&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="26">
-                    <mxGeometry y="26" width="160" height="174" as="geometry"/>
+                <mxCell id="cls_supplier_fields" value="+ id: BIGINT PK&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ email: string&lt;/div&gt;&lt;div&gt;+ phone: string&lt;/div&gt;&lt;div&gt;+ address: string&lt;/div&gt;&lt;div&gt;+ status: string&lt;/div&gt;&lt;div&gt;+ payment_terms: string&lt;/div&gt;&lt;div&gt;+ contract_start_date: date&lt;/div&gt;&lt;div&gt;+ contract_end_date: date&lt;/div&gt;&lt;div&gt;+ branch_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_supplier">
+                    <mxGeometry y="28" width="210" height="212" as="geometry"/>
                 </mxCell>
-                <mxCell id="29" value="Supplier" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-                    <mxGeometry x="-2540" y="-860" width="210" height="220" as="geometry">
-                        <mxRectangle x="-2540" y="-860" width="80" height="30" as="alternateBounds"/>
-                    </mxGeometry>
+                <!-- Category -->
+                <mxCell id="cls_category" value="Category" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="500" y="40" width="170" height="150" as="geometry"/>
                 </mxCell>
-                <mxCell id="30" value="+ id: int&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ email: string&lt;/div&gt;&lt;div&gt;+ phone: string&lt;/div&gt;&lt;div&gt;+ address: string&lt;/div&gt;&lt;div&gt;+ contract_start_date: datetime&lt;/div&gt;&lt;div&gt;+ contract_end_date: datetime&lt;/div&gt;&lt;div&gt;+ status: string&lt;/div&gt;&lt;div&gt;+ payment_terms: string&lt;/div&gt;&lt;div&gt;+ branch_id: int&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="29">
-                    <mxGeometry y="26" width="210" height="194" as="geometry"/>
+                <mxCell id="cls_category_fields" value="+ id: BIGINT PK&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ description: text&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_category">
+                    <mxGeometry y="28" width="170" height="122" as="geometry"/>
                 </mxCell>
-                <mxCell id="38" value="1" style="endArrow=open;html=1;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=bottom;exitX=0.551;exitY=-0.003;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.562;entryY=1.001;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="10" target="30">
-                    <mxGeometry x="-0.7852" y="-17" relative="1" as="geometry">
-                        <mxPoint x="-2450" y="-610" as="sourcePoint"/>
-                        <mxPoint x="-2420" y="-630" as="targetPoint"/>
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
+                <!-- Product -->
+                <mxCell id="cls_product" value="Product" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="310" width="210" height="250" as="geometry"/>
                 </mxCell>
-                <mxCell id="39" value="1" style="endArrow=open;html=1;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=bottom;entryX=-0.004;entryY=0.253;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.386;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="11" target="27">
-                    <mxGeometry x="-1" y="3" relative="1" as="geometry">
-                        <mxPoint x="-2380" y="-520" as="sourcePoint"/>
-                        <mxPoint x="-2300" y="-520" as="targetPoint"/>
-                    </mxGeometry>
+                <mxCell id="cls_product_fields" value="+ id: BIGINT PK&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ description: text&lt;/div&gt;&lt;div&gt;+ price: decimal&lt;/div&gt;&lt;div&gt;+ stock_quantity: int&lt;/div&gt;&lt;div&gt;+ low_stock_notified: bool&lt;/div&gt;&lt;div&gt;+ supplier_id: FK&lt;/div&gt;&lt;div&gt;+ branch_id: FK&lt;/div&gt;&lt;div&gt;+ category_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_product">
+                    <mxGeometry y="28" width="210" height="222" as="geometry"/>
                 </mxCell>
-                <mxCell id="40" value="1" style="endArrow=open;html=1;endSize=12;startArrow=diamondThin;startSize=14;startFill=0;edgeStyle=orthogonalEdgeStyle;align=left;verticalAlign=bottom;exitX=0.442;exitY=1.009;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="11" target="19">
-                    <mxGeometry x="-0.5706" y="9" relative="1" as="geometry">
-                        <mxPoint x="-2500" y="-400" as="sourcePoint"/>
-                        <mxPoint x="-2469" y="-350" as="targetPoint"/>
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
+                <!-- Customer -->
+                <mxCell id="cls_customer" value="Customer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="500" y="210" width="200" height="200" as="geometry"/>
                 </mxCell>
+                <mxCell id="cls_customer_fields" value="+ id: BIGINT PK&lt;div&gt;+ name: string&lt;/div&gt;&lt;div&gt;+ email: string&lt;/div&gt;&lt;div&gt;+ phone: string&lt;/div&gt;&lt;div&gt;+ loyalty_points: int&lt;/div&gt;&lt;div&gt;+ branch_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_customer">
+                    <mxGeometry y="28" width="200" height="172" as="geometry"/>
+                </mxCell>
+                <!-- Sale -->
+                <mxCell id="cls_sale" value="Sale" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="740" y="210" width="200" height="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="cls_sale_fields" value="+ id: BIGINT PK&lt;div&gt;+ quantity: int&lt;/div&gt;&lt;div&gt;+ tax: decimal&lt;/div&gt;&lt;div&gt;+ discount: decimal&lt;/div&gt;&lt;div&gt;+ total_amount: decimal&lt;/div&gt;&lt;div&gt;+ status: string&lt;/div&gt;&lt;div&gt;+ product_id: FK&lt;/div&gt;&lt;div&gt;+ customer_id: FK&lt;/div&gt;&lt;div&gt;+ branch_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_sale">
+                    <mxGeometry y="28" width="200" height="202" as="geometry"/>
+                </mxCell>
+                <!-- Invoice -->
+                <mxCell id="cls_invoice" value="Invoice" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="980" y="210" width="210" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="cls_invoice_fields" value="+ id: BIGINT PK&lt;div&gt;+ invoice_number: string&lt;/div&gt;&lt;div&gt;+ type: enum&lt;/div&gt;&lt;div&gt;+ total_amount: decimal&lt;/div&gt;&lt;div&gt;+ tax_amount: decimal&lt;/div&gt;&lt;div&gt;+ discount: decimal&lt;/div&gt;&lt;div&gt;+ status: enum&lt;/div&gt;&lt;div&gt;+ branch: string&lt;/div&gt;&lt;div&gt;+ customer_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;&lt;div&gt;+ updated_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_invoice">
+                    <mxGeometry y="28" width="210" height="232" as="geometry"/>
+                </mxCell>
+                <!-- Pivot invoice_sale -->
+                <mxCell id="cls_invoice_sale" value="invoice_sale (pivot)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;" vertex="1" parent="1">
+                    <mxGeometry x="980" y="500" width="200" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="cls_invoice_sale_fields" value="+ invoice_id: FK&lt;div&gt;+ sale_id: FK&lt;/div&gt;&lt;div&gt;+ line_total: decimal&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_invoice_sale">
+                    <mxGeometry y="28" width="200" height="122" as="geometry"/>
+                </mxCell>
+                <!-- StockNotification -->
+                <mxCell id="cls_stock_notification" value="StockNotification" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;startSize=28;horizontal=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="740" y="500" width="210" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="cls_stock_notification_fields" value="+ id: BIGINT PK&lt;div&gt;+ type: string&lt;/div&gt;&lt;div&gt;+ message: text&lt;/div&gt;&lt;div&gt;+ is_read: bool&lt;/div&gt;&lt;div&gt;+ product_id: FK&lt;/div&gt;&lt;div&gt;+ created_at: datetime&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;overflow=hidden;whiteSpace=wrap;html=1;" vertex="1" parent="cls_stock_notification">
+                    <mxGeometry y="28" width="210" height="142" as="geometry"/>
+                </mxCell>
+                <!-- Relationships (composition/association) -->
+                <mxCell id="rel_branch_users" edge="1" parent="1" source="cls_branch" target="cls_user" style="endArrow=block;startArrow=diamondThin;startFill=0;"/>
+                <mxCell id="rel_branch_suppliers" edge="1" parent="1" source="cls_branch" target="cls_supplier" style="endArrow=block;startArrow=diamondThin;startFill=0;"/>
+                <mxCell id="rel_branch_products" edge="1" parent="1" source="cls_branch" target="cls_product" style="endArrow=block;startArrow=diamondThin;startFill=0;"/>
+                <mxCell id="rel_branch_customers" edge="1" parent="1" source="cls_branch" target="cls_customer" style="endArrow=block;startArrow=diamondThin;startFill=0;"/>
+                <mxCell id="rel_branch_sales" edge="1" parent="1" source="cls_branch" target="cls_sale" style="endArrow=block;startArrow=diamondThin;startFill=0;"/>
+                <mxCell id="rel_supplier_products" edge="1" parent="1" source="cls_supplier" target="cls_product" style="endArrow=block;"/>
+                <mxCell id="rel_category_products" edge="1" parent="1" source="cls_category" target="cls_product" style="endArrow=block;"/>
+                <mxCell id="rel_customer_sales" edge="1" parent="1" source="cls_customer" target="cls_sale" style="endArrow=block;"/>
+                <mxCell id="rel_product_sales" edge="1" parent="1" source="cls_product" target="cls_sale" style="endArrow=block;"/>
+                <mxCell id="rel_customer_invoices" edge="1" parent="1" source="cls_customer" target="cls_invoice" style="endArrow=block;"/>
+                <mxCell id="rel_sale_invoice_pivot" edge="1" parent="1" source="cls_sale" target="cls_invoice_sale" style="dashed=1;endArrow=open;"/>
+                <mxCell id="rel_invoice_invoice_pivot" edge="1" parent="1" source="cls_invoice" target="cls_invoice_sale" style="dashed=1;endArrow=open;"/>
+                <mxCell id="rel_product_notifications" edge="1" parent="1" source="cls_product" target="cls_stock_notification" style="endArrow=block;"/>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <!-- Page 2: Use Case Diagram -->
+    <diagram id="IMS_USE_CASES" name="Use Case Diagram">
+        <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+            <root>
+                <mxCell id="uc0"/>
+                <mxCell id="uc1" parent="uc0"/>
+                <!-- Actors -->
+                <mxCell id="actor_admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="uc1">
+                    <mxGeometry x="80" y="80" width="40" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="actor_cashier" value="Cashier" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="uc1">
+                    <mxGeometry x="80" y="320" width="40" height="80" as="geometry"/>
+                </mxCell>
+                <!-- System boundary -->
+                <mxCell id="system_boundary" value="IMS" style="swimlane;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=24;rounded=1;html=1;" vertex="1" parent="uc1">
+                    <mxGeometry x="260" y="40" width="1180" height="700" as="geometry"/>
+                </mxCell>
+                <!-- Use Cases -->
+                <mxCell id="uc_manage_products" value="Manage Products" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="60" y="60" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_manage_categories" value="Manage Categories" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="60" y="150" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_manage_suppliers" value="Manage Suppliers" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="60" y="240" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_manage_customers" value="Manage Customers" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="60" y="330" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_view_dashboard" value="View Dashboard" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="340" y="60" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_create_sale" value="Create Sale" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="340" y="150" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_generate_invoice" value="Generate Invoice" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="340" y="240" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_update_invoice_status" value="Update Invoice Status" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="340" y="330" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_print_invoice" value="Print Invoice" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="340" y="420" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_authenticate" value="Authenticate (Login/Logout)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="640" y="60" width="220" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_manage_users" value="Manage Users &amp; Roles" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="640" y="150" width="220" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_view_reports" value="View Branch Reports" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="640" y="240" width="220" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_receive_notifications" value="Receive Low Stock Notifications" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="system_boundary">
+                    <mxGeometry x="640" y="330" width="260" height="60" as="geometry"/>
+                </mxCell>
+                <!-- Associations -->
+                <mxCell id="edge_admin_manage_products" edge="1" parent="uc1" source="actor_admin" target="uc_manage_products" style="endArrow=block;"/>
+                <mxCell id="edge_admin_manage_categories" edge="1" parent="uc1" source="actor_admin" target="uc_manage_categories" style="endArrow=block;"/>
+                <mxCell id="edge_admin_manage_suppliers" edge="1" parent="uc1" source="actor_admin" target="uc_manage_suppliers" style="endArrow=block;"/>
+                <mxCell id="edge_admin_manage_customers" edge="1" parent="uc1" source="actor_admin" target="uc_manage_customers" style="endArrow=block;"/>
+                <mxCell id="edge_admin_view_dashboard" edge="1" parent="uc1" source="actor_admin" target="uc_view_dashboard" style="endArrow=block;"/>
+                <mxCell id="edge_admin_manage_users" edge="1" parent="uc1" source="actor_admin" target="uc_manage_users" style="endArrow=block;"/>
+                <mxCell id="edge_admin_view_reports" edge="1" parent="uc1" source="actor_admin" target="uc_view_reports" style="endArrow=block;"/>
+                <mxCell id="edge_admin_receive_notifications" edge="1" parent="uc1" source="actor_admin" target="uc_receive_notifications" style="endArrow=block;"/>
+                <mxCell id="edge_admin_authenticate" edge="1" parent="uc1" source="actor_admin" target="uc_authenticate" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_view_dashboard" edge="1" parent="uc1" source="actor_cashier" target="uc_view_dashboard" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_create_sale" edge="1" parent="uc1" source="actor_cashier" target="uc_create_sale" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_generate_invoice" edge="1" parent="uc1" source="actor_cashier" target="uc_generate_invoice" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_update_invoice_status" edge="1" parent="uc1" source="actor_cashier" target="uc_update_invoice_status" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_print_invoice" edge="1" parent="uc1" source="actor_cashier" target="uc_print_invoice" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_receive_notifications" edge="1" parent="uc1" source="actor_cashier" target="uc_receive_notifications" style="endArrow=block;"/>
+                <mxCell id="edge_cashier_authenticate" edge="1" parent="uc1" source="actor_cashier" target="uc_authenticate" style="endArrow=block;"/>
+                <!-- Include / Extend (dashed) -->
+                <mxCell id="edge_include_sale_invoice" edge="1" parent="uc1" source="uc_create_sale" target="uc_generate_invoice" style="dashed=1;endArrow=open;labelBackgroundColor=#ffffff;" value="&lt;&lt;include&gt;&gt;"/>
+                <mxCell id="edge_extend_generate_print" edge="1" parent="uc1" source="uc_print_invoice" target="uc_generate_invoice" style="dashed=1;endArrow=open;labelBackgroundColor=#ffffff;" value="&lt;&lt;extend&gt;&gt;"/>
             </root>
         </mxGraphModel>
     </diagram>

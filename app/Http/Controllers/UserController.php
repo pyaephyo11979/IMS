@@ -9,14 +9,34 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('branch')->get();
-        $branches = Branch::all();
+        $query = User::with('branch');
+
+        if ($branch = $request->get('branch')) {
+            $query->where('branch_id', $branch);
+        }
+        if ($role = $request->get('role')) {
+            $query->where('role', $role);
+        }
+        if ($search = $request->get('q')) {
+            $query->where(function($q) use ($search) {
+                $q->where('name','like',"%{$search}%")
+                  ->orWhere('email','like',"%{$search}%");
+            });
+        }
+
+        $users = $query->orderByDesc('id')->paginate(10)->withQueryString();
+        $branches = Branch::select('id','name')->get();
 
         return Inertia::render('user/index', [
             'users' => $users,
             'branches' => $branches,
+            'filters' => [
+                'branch' => $branch ?? null,
+                'role' => $role ?? null,
+                'q' => $search ?? null,
+            ],
         ]);
     }
 

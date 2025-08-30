@@ -23,7 +23,7 @@ export function CustomerTable({ customers }: { customers: any }) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {customers.map((customer: any) => (
+                        {customers.data.map((customer: any) => (
                             <TableRow key={customer.id}>
                                 <TableCell>{customer.name}</TableCell>
                                 <TableCell>{customer.email}</TableCell>
