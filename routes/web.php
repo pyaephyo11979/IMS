@@ -1,0 +1,67 @@
+<?php
+
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\StockNotificationController;
+use App\Http\Controllers\CustomerController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::middleware('guest')->group(function () {
+    Route::get('/', [AuthenticatedSessionController::class, 'create'])
+        ->name('login');
+    Route::post('/', [AuthenticatedSessionController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+        ->name('logout');
+    Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::post('/customers/delete/{id}', [CustomerController::class, 'destroy'])->name('customers.delete');
+        Route::post('/sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy');
+
+});
+Route::middleware(['auth', 'role:2'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::post('/users/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
+
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::post('/products/delete/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    // Supplier management (admin)
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+    Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
+    Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+    Route::get('/suppliers/{id}', [SupplierController::class, 'show'])->name('suppliers.show');
+    Route::get('/suppliers/{id}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
+    Route::post('/suppliers/update/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
+    Route::post('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+    Route::get('/suppliers/search/query', [SupplierController::class, 'search'])->name('suppliers.search');
+
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+
+
+
+    Route::post('/notifications/{id}/read', [StockNotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}', [StockNotificationController::class, 'delete'])->name('notifications.delete');
+});
+
+Route::middleware(['auth', 'role:1'])->group(function () {
+
+    Route::get('/pos', [ProductController::class, 'indexBranch'])->name('pos.index');
+    Route::get('/sales/create/{pid}', [SaleController::class, 'create'])->name('sales.create');
+    Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+        Route::post('/sales/update/{id}', [SaleController::class, 'update'])->name('sales.update');
+});
