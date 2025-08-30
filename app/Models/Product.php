@@ -74,4 +74,9 @@ class Product extends Model
     {
         return $this->stock_quantity < 10;
     }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
 }

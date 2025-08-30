@@ -36,4 +36,10 @@ class Invoice extends Model
     {
         return $this->belongsToMany(Sale::class, 'invoice_sale')->withTimestamps()->withPivot('line_total');
     }
+
+    // Convenience accessor: total number of sales lines
+    public function salesCount(): int
+    {
+        return $this->sales()->count();
+    }
 }
