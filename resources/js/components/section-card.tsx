@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
-import { ReactNode } from 'react';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { ReactNode } from 'react';
 
 // Variants reflect semantic intent for dashboard KPI cards.
 export type SectionCardVariant = 'neutral' | 'primary' | 'success' | 'danger' | 'warning' | 'gradient';
@@ -67,20 +67,21 @@ export function SectionCard({
     const negative = typeof change === 'number' ? change < 0 : undefined;
 
     // Normalize sparkline values 0..1 for relative heights
-    const normalizedSpark = sparkline && sparkline.length > 1
-        ? (() => {
-                const min = Math.min(...sparkline);
-                const max = Math.max(...sparkline);
-                const range = max - min || 1;
-                return sparkline.map(v => (v - min) / range);
-            })()
-        : undefined;
+    const normalizedSpark =
+        sparkline && sparkline.length > 1
+            ? (() => {
+                  const min = Math.min(...sparkline);
+                  const max = Math.max(...sparkline);
+                  const range = max - min || 1;
+                  return sparkline.map((v) => (v - min) / range);
+              })()
+            : undefined;
 
     return (
         <Wrapper
             {...(wrapperProps as Record<string, unknown>)}
             className={cn(
-                'group relative flex h-full flex-col overflow-hidden rounded-xl p-4 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+                'group relative flex h-full flex-col overflow-hidden rounded-xl p-4 transition-all focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:outline-none',
                 href && 'hover:-translate-y-0.5 hover:shadow-md active:translate-y-0',
                 variantBase[variant],
                 loading && 'pointer-events-none opacity-70',
@@ -97,9 +98,23 @@ export function SectionCard({
 
             <div className="relative z-10 flex items-start justify-between gap-3">
                 <div className="flex min-w-0 flex-col">
-                    <span className={cn('text-xs font-medium uppercase tracking-wide text-muted-foreground', variant === 'gradient' && 'text-primary-foreground/80')}>{title}</span>
+                    <span
+                        className={cn(
+                            'text-xs font-medium tracking-wide text-muted-foreground uppercase',
+                            variant === 'gradient' && 'text-primary-foreground/80',
+                        )}
+                    >
+                        {title}
+                    </span>
                     {derivedDescription && (
-                        <span className={cn('mt-0.5 line-clamp-2 text-xs text-muted-foreground', variant === 'gradient' && 'text-primary-foreground/70')}>{derivedDescription}</span>
+                        <span
+                            className={cn(
+                                'mt-0.5 line-clamp-2 text-xs text-muted-foreground',
+                                variant === 'gradient' && 'text-primary-foreground/70',
+                            )}
+                        >
+                            {derivedDescription}
+                        </span>
                     )}
                 </div>
                 <div className="flex items-start gap-2">
@@ -108,7 +123,7 @@ export function SectionCard({
                         <div
                             className={cn(
                                 'flex h-10 w-10 items-center justify-center rounded-lg border bg-background/70 text-foreground shadow-sm backdrop-blur-sm',
-                                variant === 'gradient' && 'border-white/30 bg-white/10 text-primary-foreground'
+                                variant === 'gradient' && 'border-white/30 bg-white/10 text-primary-foreground',
                             )}
                         >
                             {icon}
@@ -119,7 +134,7 @@ export function SectionCard({
 
             <div className="relative z-10 mt-4 flex flex-wrap items-end justify-between gap-3">
                 <div className="flex flex-col">
-                    <div className={cn('font-semibold leading-none tracking-tight tabular-nums', compact ? 'text-2xl' : 'text-3xl md:text-4xl')}>
+                    <div className={cn('leading-none font-semibold tracking-tight tabular-nums', compact ? 'text-2xl' : 'text-3xl md:text-4xl')}>
                         {loading ? (
                             <span className="inline-block h-7 w-28 animate-pulse rounded bg-muted" />
                         ) : (
@@ -136,18 +151,21 @@ export function SectionCard({
                                 'mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset',
                                 positive && 'bg-emerald-500/10 text-emerald-600 ring-emerald-600/30 dark:text-emerald-400',
                                 negative && 'bg-rose-500/10 text-rose-600 ring-rose-600/30 dark:text-rose-400',
-                                positive === false && negative === false && 'bg-muted text-foreground/70'
+                                positive === false && negative === false && 'bg-muted text-foreground/70',
                             )}
                         >
                             {positive && <ArrowUpRight className="h-3.5 w-3.5" />}
                             {negative && <ArrowDownRight className="h-3.5 w-3.5" />}
-                            <span>{Math.abs(change)}{valueSuffix || '%'}</span>
+                            <span>
+                                {Math.abs(change)}
+                                {valueSuffix || '%'}
+                            </span>
                             {changeLabel && <span className="pl-1 opacity-70">{changeLabel}</span>}
                         </div>
                     )}
                 </div>
                 {normalizedSpark && (
-                    <div className="ml-auto h-12 w-28 flex items-end gap-1">
+                    <div className="ml-auto flex h-12 w-28 items-end gap-1">
                         {normalizedSpark.map((h, i) => (
                             <span
                                 key={i}
@@ -155,7 +173,7 @@ export function SectionCard({
                                 className={cn(
                                     'flex-1 rounded-sm bg-primary/50 transition-colors group-hover:bg-primary/70',
                                     negative && 'bg-rose-500/50 group-hover:bg-rose-500/70',
-                                    positive && 'bg-emerald-500/50 group-hover:bg-emerald-500/70'
+                                    positive && 'bg-emerald-500/50 group-hover:bg-emerald-500/70',
                                 )}
                             />
                         ))}
@@ -164,12 +182,19 @@ export function SectionCard({
             </div>
 
             {footer && (
-                <div className={cn('relative z-10 mt-4 flex items-center justify-between text-xs text-muted-foreground', variant === 'gradient' && 'text-primary-foreground/70')}>
+                <div
+                    className={cn(
+                        'relative z-10 mt-4 flex items-center justify-between text-xs text-muted-foreground',
+                        variant === 'gradient' && 'text-primary-foreground/70',
+                    )}
+                >
                     {footer}
                 </div>
             )}
 
-            {href && <span className="pointer-events-none absolute inset-0 rounded-xl ring-inset ring-transparent group-focus-visible:ring-2 group-focus-visible:ring-primary/60" />}
+            {href && (
+                <span className="pointer-events-none absolute inset-0 rounded-xl ring-transparent ring-inset group-focus-visible:ring-2 group-focus-visible:ring-primary/60" />
+            )}
         </Wrapper>
     );
 }

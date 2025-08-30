@@ -70,7 +70,7 @@ class Product extends Model
         return $this->hasMany(StockNotification::class);
     }
 
-    public function isLowStock():bool
+    public function isLowStock(): bool
     {
         return $this->stock_quantity < 10;
     }

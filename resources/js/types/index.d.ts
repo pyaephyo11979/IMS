@@ -42,12 +42,26 @@ export interface User {
     [key: string]: unknown; // This allows for additional properties...
 }
 
-interface MetricUser { id: number }
-interface MetricProduct { id: number }
-interface MetricCustomer { id: number }
-interface MetricSupplier { id: number; status: string }
-interface MetricBranch { id: number }
-interface MetricSale { id: number; total_amount: number }
+interface MetricUser {
+    id: number;
+}
+interface MetricProduct {
+    id: number;
+}
+interface MetricCustomer {
+    id: number;
+}
+interface MetricSupplier {
+    id: number;
+    status: string;
+}
+interface MetricBranch {
+    id: number;
+}
+interface MetricSale {
+    id: number;
+    total_amount: number;
+}
 interface DashboardPageProps {
     products: MetricProduct[];
     users: MetricUser[];

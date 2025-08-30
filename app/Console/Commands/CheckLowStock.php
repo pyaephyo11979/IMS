@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Product;
 use App\Models\StockNotification;
+use Illuminate\Console\Command;
 
 class CheckLowStock extends Command
 {
@@ -27,7 +27,7 @@ class CheckLowStock extends Command
      */
     public function handle()
     {
-        $lowStocks = Product::with('branch')->where('stock_quantity', '<=', 10)->where('low_stock_notified',false)->get();
+        $lowStocks = Product::with('branch')->where('stock_quantity', '<=', 10)->where('low_stock_notified', false)->get();
 
         foreach ($lowStocks as $product) {
             StockNotification::create([

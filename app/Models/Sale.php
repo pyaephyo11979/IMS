@@ -38,10 +38,9 @@ class Sale extends Model
         return $this->belongsTo(Branch::class);
     }
 
-
-    public function invoice()
+    public function invoices()
     {
-        return $this->hasOne(Invoice::class);
+        return $this->belongsToMany(Invoice::class, 'invoice_sale')->withTimestamps()->withPivot('line_total');
     }
 
     protected static function boot()

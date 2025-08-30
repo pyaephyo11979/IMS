@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Sale;
-use App\Models\Product;
-use App\Models\Customer;
 use App\Models\Branch;
-use App\Models\Supplier;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Sale;
 use App\Models\StockNotification;
+use App\Models\Supplier;
 use App\Models\User;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
-
+use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sale;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,7 +12,7 @@ class SaleController extends Controller
 {
     public function index(Request $request)
     {
-        if($request->user()->isAdmin()) {
+        if ($request->user()->isAdmin()) {
             $sales = Sale::with(['customer', 'branch', 'product'])->get();
         } else {
             $sales = Sale::with(['customer', 'branch', 'product'])
@@ -21,7 +21,7 @@ class SaleController extends Controller
         }
 
         return Inertia::render('sale/index', [
-            'sales' => $sales
+            'sales' => $sales,
         ]);
     }
 
@@ -31,7 +31,8 @@ class SaleController extends Controller
 
         return response()->json($sale);
     }
-    public function create(Request $request,$pid)
+
+    public function create(Request $request, $pid)
     {
         $customers = Customer::where('branch_id', $request->user()->branch_id)->get();
         $products = Product::find($pid);
@@ -63,8 +64,8 @@ class SaleController extends Controller
 
         $tax = $request->tax ?? 0;
         $discount = $request->discount ?? 0;
-        $total=$request->price * $request->quantity;
-        $total_amount=$total - ($total * $discount / 100) + ($total * $tax / 100);
+        $total = $request->price * $request->quantity;
+        $total_amount = $total - ($total * $discount / 100) + ($total * $tax / 100);
 
         $sale = Sale::create([
             'customer_id' => $request->customer_id,
@@ -92,6 +93,7 @@ class SaleController extends Controller
         $sale->update([
             'status' => $request->status,
         ]);
+
         return back()->with('success', 'Sale updated successfully.');
     }
 

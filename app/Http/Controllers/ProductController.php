@@ -11,7 +11,6 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-
     public function store(Request $request)
     {
         $request->validate([
@@ -22,7 +21,7 @@ class ProductController extends Controller
             'description' => 'nullable|string|max:1000',
             'supplier_id' => 'required|exists:suppliers,id',
             'branch_id' => 'required|exists:branches,id',
-            'is_active' => 'nullable|boolean'?:True,
+            'is_active' => 'nullable|boolean' ?: true,
         ]);
 
         Product::create($request->all());
@@ -30,7 +29,7 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request, $id)
     {
 
         Product::destroy($id);

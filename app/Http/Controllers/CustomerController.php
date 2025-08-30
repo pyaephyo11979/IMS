@@ -10,11 +10,12 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        if($request->user()->isAdmin()){
+        if ($request->user()->isAdmin()) {
             $customers = Customer::withCount(['sales', 'invoices'])->with('branch')->get();
-        }else{
+        } else {
             $customers = Customer::withCount(['sales', 'invoices'])->with('branch')->where('branch_id', $request->user()->branch_id)->get();
         }
+
         return Inertia::render('customer/index', [
             'customers' => $customers,
         ]);
@@ -34,7 +35,6 @@ class CustomerController extends Controller
             'address' => 'nullable|string|max:500',
             'loyalty_points' => 'nullable|integer|min:0',
         ]);
-
 
         $customer = Customer::create([
             'name' => $request->name,

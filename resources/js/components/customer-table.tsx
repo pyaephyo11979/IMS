@@ -6,7 +6,7 @@ import { Trash2 } from 'lucide-react';
 export function CustomerTable({ customers }: { customers: any }) {
     const { post } = useForm();
     function deleteCustomer(id: string) {
-        post(route('customers.delete'),id);
+        post(route('customers.delete'), id);
     }
     return (
         <div className="p-4">

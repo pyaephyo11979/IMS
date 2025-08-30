@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Invoice;
+use App\Models\Sale;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,12 +14,15 @@ class InvoiceController extends Controller
 {
     public function create(Request $request)
     {
-        $customers = Customer::all();
-        $suppliers = Supplier::all();
+        $customers = Customer::select('id', 'name')->orderBy('name')->get();
+        $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
+        // Fetch recent sales to attach (could filter by status if needed)
+        $sales = Sale::select('id', 'total_amount', 'status')->latest()->limit(100)->get();
 
-        return Inertia::render('Invoices/Create', [
+        return Inertia::render('invoice/create', [
             'customers' => $customers,
             'suppliers' => $suppliers,
+            'sales' => $sales,
         ]);
     }
 
@@ -30,7 +34,8 @@ class InvoiceController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'status' => 'required|string|in:pending,paid,canceled',
             'customer_name' => 'nullable|string|max:255',
-            'sale_id' => 'nullable|exists:sales,id',
+            'sales' => 'nullable|array',
+            'sales.*' => 'exists:sales,id',
             'notes' => 'nullable|string|max:1000',
             'type' => 'required|string|in:purchase,sale',
             'due_date' => 'nullable|date',
@@ -59,7 +64,6 @@ class InvoiceController extends Controller
             'branch' => $branchName,
             'customer_id' => $request->customer_id,
             'customer_name' => $customerName ?? $request->customer_name,
-            'sale_id' => $request->sale_id,
             'notes' => $request->notes,
             'due_date' => $request->due_date,
             'total_amount' => $request->total_amount,
@@ -68,22 +72,118 @@ class InvoiceController extends Controller
             'status' => $request->status,
         ]);
 
-        return response()->json($invoice->load(['customer', 'supplier', 'sale']), 201);
+        // Attach multiple sales if provided; optional line_total recompute
+        if ($request->filled('sales')) {
+            $syncData = collect($request->sales)->mapWithKeys(fn ($saleId) => [$saleId => ['line_total' => null]])->toArray();
+            $invoice->sales()->sync($syncData);
+        }
+
+        return response()->json($invoice->load(['customer', 'supplier', 'sales']), 201);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Invoices/Index', [
-            'invoices' => Invoice::with(['customer', 'supplier', 'sale'])->paginate(10),
+        $query = Invoice::query()->with(['customer:id,name', 'supplier:id,name', 'sales:id,total_amount,status']);
+
+        // Role-based scope: role 2 (admin) sees all, role 1 (cashier) limited to their branch
+        $user = $request->user();
+        if ($user && (int) $user->role === 1) {
+            // Invoices store branch name string; match against user's branch name if available
+            $branchName = $user->branch?->name;
+            if ($branchName) {
+                $query->where('branch', $branchName);
+            } else {
+                // If user has no branch name assigned, return none (safety) rather than exposing all
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+        // Optional filters
+        if ($status = $request->get('status')) {
+            $query->where('status', $status);
+        }
+        if ($type = $request->get('type')) {
+            $query->where('type', $type);
+        }
+        if ($search = $request->get('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%");
+            });
+        }
+
+        $invoices = $query->latest()->paginate(10)->through(function (Invoice $invoice) {
+            $salesTotal = $invoice->sales->sum('total_amount');
+
+            return [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'type' => $invoice->type,
+                'status' => $invoice->status,
+                'branch' => $invoice->branch,
+                'total_amount' => $invoice->total_amount,
+                'computed_sales_total' => $salesTotal,
+                'difference' => $invoice->total_amount - $salesTotal,
+                'customer' => $invoice->customer,
+                'supplier' => $invoice->supplier,
+                'sales_count' => $invoice->sales->count(),
+                'sales' => $invoice->sales->map(fn ($s) => [
+                    'id' => $s->id,
+                    'total_amount' => $s->total_amount,
+                    'status' => $s->status,
+                ]),
+                'created_at' => $invoice->created_at?->toDateTimeString(),
+            ];
+        });
+
+        // Summary stats for dashboard / filters UI
+        $summary = [
+            'total' => $invoices->total(),
+            'pending' => Invoice::where('status', 'pending')->count(),
+            'paid' => Invoice::where('status', 'paid')->count(),
+            'canceled' => Invoice::where('status', 'canceled')->count(),
+        ];
+
+        return Inertia::render('invoice/index', [
+            'invoices' => $invoices,
+            'filters' => [
+                'status' => $status ?? null,
+                'type' => $type ?? null,
+                'q' => $search ?? null,
+            ],
+            'summary' => $summary,
         ]);
     }
 
     public function show($id)
     {
-        $invoice = Invoice::with(['customer', 'supplier', 'sale'])->findOrFail($id);
+        $invoice = Invoice::with(['customer:id,name', 'supplier:id,name', 'sales:id,total_amount,status'])
+            ->findOrFail($id);
 
-        return Inertia::render('Invoices/Show', [
-            'invoice' => $invoice,
+        $salesTotal = $invoice->sales->sum('total_amount');
+        $data = [
+            'id' => $invoice->id,
+            'invoice_number' => $invoice->invoice_number,
+            'type' => $invoice->type,
+            'status' => $invoice->status,
+            'total_amount' => $invoice->total_amount,
+            'tax_amount' => $invoice->tax_amount,
+            'discount' => $invoice->discount,
+            'computed_sales_total' => $salesTotal,
+            'difference' => $invoice->total_amount - $salesTotal,
+            'customer' => $invoice->customer,
+            'supplier' => $invoice->supplier,
+            'sales' => $invoice->sales->map(fn ($s) => [
+                'id' => $s->id,
+                'total_amount' => $s->total_amount,
+                'status' => $s->status,
+            ]),
+            'created_at' => $invoice->created_at?->toDateTimeString(),
+            'updated_at' => $invoice->updated_at?->toDateTimeString(),
+        ];
+
+        return Inertia::render('invoice/info', [
+            'invoice' => $data,
         ]);
     }
 
@@ -116,7 +216,7 @@ class InvoiceController extends Controller
 
         $invoice->update($updateData);
 
-        return response()->json($invoice->load(['customer', 'supplier', 'sale']));
+        return response()->json($invoice->load(['customer', 'supplier', 'sales']));
     }
 
     public function destroy($id)

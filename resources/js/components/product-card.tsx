@@ -24,7 +24,7 @@ export function ProductCard({ product }: any) {
     function handleDelete(productId) {
         post(route('products.destroy', productId));
     }
-    function handleMakeSale($pid:string) {
+    function handleMakeSale($pid: string) {
         get(route('sales.create', $pid));
     }
 

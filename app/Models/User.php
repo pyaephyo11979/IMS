@@ -47,6 +47,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);

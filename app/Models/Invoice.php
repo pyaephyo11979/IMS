@@ -14,7 +14,6 @@ class Invoice extends Model
         'invoice_number',
         'type',
         'supplier_id',
-        'sale_id',
         'total_amount',
         'tax_amount',
         'discount',
@@ -37,8 +36,8 @@ class Invoice extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function sale()
+    public function sales()
     {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsToMany(Sale::class, 'invoice_sale')->withTimestamps()->withPivot('line_total');
     }
 }

@@ -9,12 +9,14 @@ class StockNotification extends Model
 {
     /** @use HasFactory<\Database\Factories\StockNotificationFactory> */
     use HasFactory;
+
     protected $fillable = [
         'product_id',
         'type',
         'message',
         'is_read',
     ];
+
     protected $casts = [
         'is_read' => 'boolean',
     ];

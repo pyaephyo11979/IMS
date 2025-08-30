@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PackagePlus,BookPlus,Book } from 'lucide-react';
+import { BookPlus, PackagePlus } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -49,7 +49,7 @@ export default function ProductIndex() {
     }
     function handleCategoryAdd(e) {
         e.preventDefault();
-        post(route('categories.store'),data);
+        post(route('categories.store'), data);
     }
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -105,7 +105,7 @@ export default function ProductIndex() {
                                     <Label htmlFor="category">Category</Label>
                                     <Select value={data.category_id} onValueChange={(value) => setData('category_id', value)}>
                                         <SelectTrigger id="category" className="w-full">
-                                            <SelectValue placeholder="Select a category"   />
+                                            <SelectValue placeholder="Select a category" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
@@ -206,7 +206,6 @@ export default function ProductIndex() {
                         </form>
                     </DialogContent>
                 </Dialog>
-
             </div>
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">

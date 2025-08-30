@@ -2,8 +2,8 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Building2, ChartLine, Folder, LayoutGrid, PackageCheck, PackagePlus, Users, UsersRound } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
+import { BookOpen, Building2, ChartLine, Folder, LayoutGrid, PackageCheck, Paper, Users, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const footerNavItems: NavItem[] = [
@@ -55,6 +55,11 @@ export function AppSidebar() {
                       href: '/customers',
                       icon: UsersRound,
                   },
+                  {
+                      title: 'Invoices',
+                      href: '/invoices',
+                      icon: Paper,
+                  },
               ]
             : [
                   {
@@ -62,15 +67,20 @@ export function AppSidebar() {
                       href: '/pos',
                       icon: PackageCheck,
                   },
-                 {
+                  {
                       title: 'Sales',
                       href: '/sales',
                       icon: ChartLine,
                   },
-                {
+                  {
                       title: 'Customer',
                       href: '/customers',
                       icon: UsersRound,
+                  },
+                  {
+                      title: 'Invoices',
+                      href: '/invoices',
+                      icon: Paper,
                   },
               ];
     return (
@@ -79,7 +89,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton disabled size="lg" asChild>
-                                <AppLogo />
+                            <AppLogo />
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

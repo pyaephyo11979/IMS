@@ -1,16 +1,16 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockNotificationController;
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
@@ -24,7 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::post('/customers/delete/{id}', [CustomerController::class, 'destroy'])->name('customers.delete');
-        Route::post('/sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy');
+    Route::post('/sales/{id}', [SaleController::class, 'destroy'])->name('sales.destroy');
+
+    // Invoices viewable by any authenticated user (admins only watch; branch cashiers get create in role:1 group below)
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
 
 });
 Route::middleware(['auth', 'role:2'])->group(function () {
@@ -50,9 +54,6 @@ Route::middleware(['auth', 'role:2'])->group(function () {
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-
-
-
     Route::post('/notifications/{id}/read', [StockNotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/{id}', [StockNotificationController::class, 'delete'])->name('notifications.delete');
 });
@@ -63,5 +64,10 @@ Route::middleware(['auth', 'role:1'])->group(function () {
     Route::get('/sales/create/{pid}', [SaleController::class, 'create'])->name('sales.create');
     Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
     Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-        Route::post('/sales/update/{id}', [SaleController::class, 'update'])->name('sales.update');
+    Route::post('/sales/update/{id}', [SaleController::class, 'update'])->name('sales.update');
+
+    // Branch cashiers can create invoices
+    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    // (Optional) allow deletion/update if needed later: Route::post('/invoices/{id}', ...) etc.
 });
