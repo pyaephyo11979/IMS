@@ -20,10 +20,10 @@ class SupplierController extends Controller
             $query->where('branch_id', $branch);
         }
         if ($search = $request->get('q')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -31,7 +31,7 @@ class SupplierController extends Controller
 
         return Inertia::render('supplier/index', [
             'suppliers' => $suppliers,
-            'branches' => Branch::select('id','name')->get(),
+            'branches' => Branch::select('id', 'name')->get(),
             'filters' => [
                 'status' => $status ?? null,
                 'branch' => $branch ?? null,

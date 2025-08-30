@@ -11,24 +11,24 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $query = Customer::withCount(['sales', 'invoices'])->with('branch');
-        if (!$request->user()->isAdmin()) {
+        if (! $request->user()->isAdmin()) {
             $query->where('branch_id', $request->user()->branch_id);
         }
         if ($branch = $request->get('branch')) {
             $query->where('branch_id', $branch);
         }
         if ($search = $request->get('q')) {
-            $query->where(function($q) use ($search){
-                $q->where('name','like',"%{$search}%")
-                  ->orWhere('email','like',"%{$search}%")
-                  ->orWhere('phone','like',"%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         }
         if ($minSales = $request->get('min_sales')) {
-            $query->having('sales_count', '>=', (int)$minSales);
+            $query->having('sales_count', '>=', (int) $minSales);
         }
         if ($minInvoices = $request->get('min_invoices')) {
-            $query->having('invoices_count', '>=', (int)$minInvoices);
+            $query->having('invoices_count', '>=', (int) $minInvoices);
         }
 
         $customers = $query->orderByDesc('id')->paginate(15)->withQueryString();

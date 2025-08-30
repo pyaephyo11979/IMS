@@ -1,11 +1,11 @@
 import { NotificationCard } from '@/components/notification-card';
 import { SectionCard } from '@/components/section-card';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, usePage, router } from '@inertiajs/react';
-import { Building2, CreditCard, Package, ShoppingCart, Store, Users, ArrowUpDown, Grid, List, Search } from 'lucide-react';
-import { useMemo, useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { type BreadcrumbItem } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
+import { ArrowUpDown, Building2, CreditCard, Grid, List, Package, Search, ShoppingCart, Store, Users } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -142,7 +142,7 @@ export default function Dashboard() {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <NotificationCard notifications={stockNotifications} />
                 <div className="mb-1 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
-                    <div className="flex items-center gap-2 rounded border px-2 py-1 bg-background">
+                    <div className="flex items-center gap-2 rounded border bg-background px-2 py-1">
                         <label className="flex items-center gap-1 text-xs font-medium">
                             <input
                                 type="checkbox"
@@ -274,12 +274,12 @@ export default function Dashboard() {
                             Show Primary Branch
                         </label>
                         <div className="relative">
-                            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                            <Search className="pointer-events-none absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                             <input
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search branches..."
-                                className="pl-7 pr-2 py-1 text-xs rounded border bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                                className="rounded border bg-background py-1 pr-2 pl-7 text-xs focus:ring-1 focus:ring-primary focus:outline-none"
                             />
                         </div>
                         <div className="ml-auto flex items-center gap-1 rounded border bg-background p-1">
@@ -307,7 +307,11 @@ export default function Dashboard() {
                                     title={b.name}
                                     value={b.total.toLocaleString()}
                                     valueSuffix=" MMK"
-                                    footer={<span>{b.count} sale{b.count !== 1 && 's'}</span>}
+                                    footer={
+                                        <span>
+                                            {b.count} sale{b.count !== 1 && 's'}
+                                        </span>
+                                    }
                                 />
                             ))}
                         </div>
@@ -324,7 +328,9 @@ export default function Dashboard() {
                                 <tbody>
                                     {branchSales.length === 0 && (
                                         <tr>
-                                            <td colSpan={3} className="px-3 py-4 text-center text-muted-foreground">No branches match.</td>
+                                            <td colSpan={3} className="px-3 py-4 text-center text-muted-foreground">
+                                                No branches match.
+                                            </td>
                                         </tr>
                                     )}
                                     {branchSales.map((b) => (

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
 
 // Breadcrumbs for invoice creation
@@ -39,13 +39,17 @@ type FormData = {
 };
 
 export default function CreateInvoice() {
-    const pageProps = usePage().props as unknown as Partial<{ customers: Customer[]; sales: SaleLite[]; selected_customer_id: string | number | null }>;
+    const pageProps = usePage().props as unknown as Partial<{
+        customers: Customer[];
+        sales: SaleLite[];
+        selected_customer_id: string | number | null;
+    }>;
     const customers = useMemo(() => pageProps.customers ?? [], [pageProps.customers]);
     const sales = useMemo(() => pageProps.sales ?? [], [pageProps.sales]);
     const selectedCustomerId = pageProps.selected_customer_id ?? '';
 
     const { data, setData, post, processing } = useForm<FormData>({
-    customer_id: selectedCustomerId ? String(selectedCustomerId) : '',
+        customer_id: selectedCustomerId ? String(selectedCustomerId) : '',
         customer_name: '',
         status: 'pending',
         sales: [],
@@ -82,152 +86,152 @@ export default function CreateInvoice() {
     function submit(e: React.FormEvent) {
         e.preventDefault();
         // Convert percent inputs to absolute amounts expected by backend
-    setData('discount', Number(discountAmount.toFixed(2)));
-    setData('tax_amount', Number(taxAmount.toFixed(2)));
-    setData('total_amount', Number(grandTotal.toFixed(2)));
+        setData('discount', Number(discountAmount.toFixed(2)));
+        setData('tax_amount', Number(taxAmount.toFixed(2)));
+        setData('total_amount', Number(grandTotal.toFixed(2)));
         post('/invoices');
     }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Invoice" />
-            <div className="px-4 md:px-8 lg:px-10 w-full max-w-7xl mt-2 mx-auto">
-            <form onSubmit={submit} className="mx-auto max-w-6xl space-y-10 rounded-lg border bg-background/50 p-6">
-                <div className="grid gap-6 md:grid-cols-3">
-                    <div className="space-y-2">
-                        <Label htmlFor="customer_id">Customer</Label>
-                        <Select
-                            value={String(data.customer_id)}
-                            onValueChange={(v) => {
-                                setData('customer_id', v);
-                                // Refresh page to load sales for this customer
-                                router.get('/invoices/create', { customer_id: v }, { preserveState: true, replace: true });
-                                // Reset selected sales when changing customer
-                                setData('sales', []);
-                            }}
-                        >
-                            <SelectTrigger id="customer_id">
-                                <SelectValue placeholder="Select a customer" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {customers.map((c) => (
-                                    <SelectItem key={c.id} value={String(c.id)}>
-                                        {c.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+            <div className="mx-auto mt-2 w-full max-w-7xl px-4 md:px-8 lg:px-10">
+                <form onSubmit={submit} className="mx-auto max-w-6xl space-y-10 rounded-lg border bg-background/50 p-6">
+                    <div className="grid gap-6 md:grid-cols-3">
+                        <div className="space-y-2">
+                            <Label htmlFor="customer_id">Customer</Label>
+                            <Select
+                                value={String(data.customer_id)}
+                                onValueChange={(v) => {
+                                    setData('customer_id', v);
+                                    // Refresh page to load sales for this customer
+                                    router.get('/invoices/create', { customer_id: v }, { preserveState: true, replace: true });
+                                    // Reset selected sales when changing customer
+                                    setData('sales', []);
+                                }}
+                            >
+                                <SelectTrigger id="customer_id">
+                                    <SelectValue placeholder="Select a customer" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {customers.map((c) => (
+                                        <SelectItem key={c.id} value={String(c.id)}>
+                                            {c.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="customer_name">Walk‑in Customer Name (optional)</Label>
+                            <Input
+                                id="customer_name"
+                                value={data.customer_name}
+                                onChange={(e) => setData('customer_name', e.target.value)}
+                                placeholder="If not registered"
+                            />
+                        </div>
+                        {/* Removed supplier and purchase type fields; invoices are sales-only */}
+                        <div className="space-y-2">
+                            <Label htmlFor="status">Status</Label>
+                            <Select value={data.status} onValueChange={(v) => setData('status', v as FormData['status'])}>
+                                <SelectTrigger id="status">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="paid">Paid</SelectItem>
+                                    <SelectItem value="canceled">Canceled</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="due_date">Due Date</Label>
+                            <Input id="due_date" type="date" value={data.due_date} onChange={(e) => setData('due_date', e.target.value)} />
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="customer_name">Walk‑in Customer Name (optional)</Label>
-                        <Input
-                            id="customer_name"
-                            value={data.customer_name}
-                            onChange={(e) => setData('customer_name', e.target.value)}
-                            placeholder="If not registered"
-                        />
-                    </div>
-                    {/* Removed supplier and purchase type fields; invoices are sales-only */}
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select value={data.status} onValueChange={(v) => setData('status', v as FormData['status'])}>
-                            <SelectTrigger id="status">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="paid">Paid</SelectItem>
-                                <SelectItem value="canceled">Canceled</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="due_date">Due Date</Label>
-                        <Input id="due_date" type="date" value={data.due_date} onChange={(e) => setData('due_date', e.target.value)} />
-                    </div>
-                </div>
 
-                <div className="space-y-4">
-                    <Label className="text-sm font-medium">Attach Sales</Label>
-                    {(!data.customer_id || data.customer_id === '') && (
-                        <p className="text-sm text-muted-foreground">Select a customer to load their sales.</p>
-                    )}
-                    {data.customer_id && sales.length === 0 && (
-                        <p className="text-sm text-muted-foreground">No sales found for this customer.</p>
-                    )}
-                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                        {sales.map((sale) => {
-                            const checked = data.sales.map(String).includes(String(sale.id));
-                            return (
-                                <label
-                                    key={sale.id}
-                                    className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm transition ${checked ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}
-                                >
-                                    <Checkbox checked={checked} onCheckedChange={() => toggleSale(sale.id)} />
-                                    <span className="flex flex-col">
-                                        <span className="font-medium">Sale #{sale.id}</span>
-                                        <span className="text-xs text-muted-foreground">
-                                            Amount: {Number(sale.total_amount).toLocaleString()} • Status: {sale.status}
+                    <div className="space-y-4">
+                        <Label className="text-sm font-medium">Attach Sales</Label>
+                        {(!data.customer_id || data.customer_id === '') && (
+                            <p className="text-sm text-muted-foreground">Select a customer to load their sales.</p>
+                        )}
+                        {data.customer_id && sales.length === 0 && <p className="text-sm text-muted-foreground">No sales found for this customer.</p>}
+                        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                            {sales.map((sale) => {
+                                const checked = data.sales.map(String).includes(String(sale.id));
+                                return (
+                                    <label
+                                        key={sale.id}
+                                        className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm transition ${checked ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'}`}
+                                    >
+                                        <Checkbox checked={checked} onCheckedChange={() => toggleSale(sale.id)} />
+                                        <span className="flex flex-col">
+                                            <span className="font-medium">Sale #{sale.id}</span>
+                                            <span className="text-xs text-muted-foreground">
+                                                Amount: {Number(sale.total_amount).toLocaleString()} • Status: {sale.status}
+                                            </span>
                                         </span>
-                                    </span>
-                                </label>
-                            );
-                        })}
+                                    </label>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
 
-                <div className="grid gap-6 md:grid-cols-4">
+                    <div className="grid gap-6 md:grid-cols-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="discount_percent">Discount (%)</Label>
+                            <Input
+                                id="discount_percent"
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={data.discount_percent}
+                                onChange={(e) => setData('discount_percent', Number(e.target.value) || 0)}
+                            />
+                            <p className="text-xs text-muted-foreground">Amount: {discountAmount.toLocaleString()} MMK</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="tax_percent">Tax (%)</Label>
+                            <Input
+                                id="tax_percent"
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={data.tax_percent}
+                                onChange={(e) => setData('tax_percent', Number(e.target.value) || 0)}
+                            />
+                            <p className="text-xs text-muted-foreground">Amount: {taxAmount.toLocaleString()} MMK</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Subtotal (Selected Sales)</Label>
+                            <div className="rounded-md border bg-muted/40 p-3 text-sm font-medium">{base.toLocaleString()} MMK</div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Total</Label>
+                            <div className="rounded-md bg-primary p-3 text-sm font-bold text-primary-foreground">
+                                {grandTotal.toLocaleString()} MMK
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="space-y-2">
-                        <Label htmlFor="discount_percent">Discount (%)</Label>
-                        <Input
-                            id="discount_percent"
-                            type="number"
-                            min={0}
-                            max={100}
-                            value={data.discount_percent}
-                            onChange={(e) => setData('discount_percent', Number(e.target.value) || 0)}
+                        <Label htmlFor="notes">Notes</Label>
+                        <textarea
+                            id="notes"
+                            className="min-h-[80px] w-full rounded-md border bg-background p-2 text-sm"
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
+                            placeholder="Additional information..."
                         />
-                        <p className="text-xs text-muted-foreground">Amount: {discountAmount.toLocaleString()} MMK</p>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="tax_percent">Tax (%)</Label>
-                        <Input
-                            id="tax_percent"
-                            type="number"
-                            min={0}
-                            max={100}
-                            value={data.tax_percent}
-                            onChange={(e) => setData('tax_percent', Number(e.target.value) || 0)}
-                        />
-                        <p className="text-xs text-muted-foreground">Amount: {taxAmount.toLocaleString()} MMK</p>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Subtotal (Selected Sales)</Label>
-                        <div className="rounded-md border bg-muted/40 p-3 text-sm font-medium">{base.toLocaleString()} MMK</div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Total</Label>
-                        <div className="rounded-md bg-primary p-3 text-sm font-bold text-primary-foreground">{grandTotal.toLocaleString()} MMK</div>
-                    </div>
-                </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="notes">Notes</Label>
-                    <textarea
-                        id="notes"
-                        className="min-h-[80px] w-full rounded-md border bg-background p-2 text-sm"
-                        value={data.notes}
-                        onChange={(e) => setData('notes', e.target.value)}
-                        placeholder="Additional information..."
-                    />
-                </div>
-
-                <div className="flex justify-end gap-3">
-                    <Button type="submit" disabled={processing}>
-                        {processing ? 'Saving...' : 'Create Invoice'}
-                    </Button>
-                </div>
-            </form>
+                    <div className="flex justify-end gap-3">
+                        <Button type="submit" disabled={processing}>
+                            {processing ? 'Saving...' : 'Create Invoice'}
+                        </Button>
+                    </div>
+                </form>
             </div>
         </AppLayout>
     );

@@ -20,14 +20,14 @@ class UserController extends Controller
             $query->where('role', $role);
         }
         if ($search = $request->get('q')) {
-            $query->where(function($q) use ($search) {
-                $q->where('name','like',"%{$search}%")
-                  ->orWhere('email','like',"%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
         $users = $query->orderByDesc('id')->paginate(10)->withQueryString();
-        $branches = Branch::select('id','name')->get();
+        $branches = Branch::select('id', 'name')->get();
 
         return Inertia::render('user/index', [
             'users' => $users,

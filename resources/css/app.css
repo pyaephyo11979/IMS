@@ -62,15 +62,15 @@
 /* Monochrome (grayscale) palette – light mode */
 :root {
     /* Base surfaces */
-    --background: oklch(1 0 0);          /* #FFFFFF */
-    --foreground: oklch(0.14 0 0);       /* Near black */
+    --background: oklch(1 0 0); /* #FFFFFF */
+    --foreground: oklch(0.14 0 0); /* Near black */
     --card: oklch(0.985 0 0);
     --card-foreground: var(--foreground);
     --popover: var(--card);
     --popover-foreground: var(--foreground);
 
     /* Interactive / brand (dark neutral) */
-    --primary: oklch(0.26 0 0);          /* Dark gray */
+    --primary: oklch(0.26 0 0); /* Dark gray */
     --primary-foreground: oklch(0.985 0 0);
 
     /* Subtle surfaces */
@@ -112,14 +112,14 @@
 
 /* Monochrome palette – dark mode */
 .dark {
-    --background: oklch(0.16 0 0);          /* Dark surface */
-    --foreground: oklch(0.96 0 0);          /* Light text */
+    --background: oklch(0.16 0 0); /* Dark surface */
+    --foreground: oklch(0.96 0 0); /* Light text */
     --card: oklch(0.19 0 0);
     --card-foreground: var(--foreground);
     --popover: var(--card);
     --popover-foreground: var(--foreground);
 
-    --primary: oklch(0.9 0 0);              /* Light gray for emphasis */
+    --primary: oklch(0.9 0 0); /* Light gray for emphasis */
     --primary-foreground: oklch(0.18 0 0);
     --secondary: oklch(0.28 0 0);
     --secondary-foreground: oklch(0.9 0 0);

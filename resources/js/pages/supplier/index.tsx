@@ -12,12 +12,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -30,21 +30,33 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface Branch { id: number|string; name: string }
+interface Branch {
+    id: number | string;
+    name: string;
+}
 interface SupplierItem {
-    id: number|string;
-    name: string; email: string; phone: string; address: string;
-    contract_start_date?: string|null; contract_end_date?: string|null;
-    status: string; branch: Branch;
+    id: number | string;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    contract_start_date?: string | null;
+    contract_end_date?: string | null;
+    status: string;
+    branch: Branch;
 }
 interface Paginated<T> {
     data: T[];
     total: number;
-    prev_page_url: string|null;
-    next_page_url: string|null;
-    links: { url:string|null; label:string; active:boolean }[];
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    links: { url: string | null; label: string; active: boolean }[];
 }
-interface PageProps { suppliers: Paginated<SupplierItem>; branches: Branch[]; filters: { status?:string|null; branch?:string|null; q?:string|null } }
+interface PageProps {
+    suppliers: Paginated<SupplierItem>;
+    branches: Branch[];
+    filters: { status?: string | null; branch?: string | null; q?: string | null };
+}
 
 export default function SupplierIndex() {
     const { suppliers, branches, filters } = usePage().props as unknown as PageProps;
@@ -83,11 +95,15 @@ export default function SupplierIndex() {
     function applyFilters(partial?: Partial<typeof localFilters>) {
         const next = { ...localFilters, ...(partial || {}) };
         setLocalFilters(next);
-        router.get('/suppliers', {
-            status: next.status === 'all' ? undefined : next.status,
-            branch: next.branch === 'all' ? undefined : next.branch,
-            q: next.q || undefined,
-        }, { preserveState: true, replace: true });
+        router.get(
+            '/suppliers',
+            {
+                status: next.status === 'all' ? undefined : next.status,
+                branch: next.branch === 'all' ? undefined : next.branch,
+                q: next.q || undefined,
+            },
+            { preserveState: true, replace: true },
+        );
     }
 
     function handleSearchKey(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -104,33 +120,60 @@ export default function SupplierIndex() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Suppliers" />
-            <div className="flex flex-col p-4 gap-6 max-w-7xl mx-auto w-full">
-                <div className="flex flex-wrap gap-3 items-end">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4">
+                <div className="flex flex-wrap items-end gap-3">
                     <div className="w-40">
-                        <Label className="text-xs font-medium mb-1 block">Status</Label>
-                        <Select value={localFilters.status} onValueChange={(v)=> applyFilters({ status: v })}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
+                        <Label className="mb-1 block text-xs font-medium">Status</Label>
+                        <Select value={localFilters.status} onValueChange={(v) => applyFilters({ status: v })}>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
                             <SelectContent>
-                                {statuses.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                                {statuses.map((s) => (
+                                    <SelectItem key={s.value} value={s.value}>
+                                        {s.label}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="w-48">
-                        <Label className="text-xs font-medium mb-1 block">Branch</Label>
-                        <Select value={localFilters.branch} onValueChange={(v)=> applyFilters({ branch: v })}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
+                        <Label className="mb-1 block text-xs font-medium">Branch</Label>
+                        <Select value={localFilters.branch} onValueChange={(v) => applyFilters({ branch: v })}>
+                            <SelectTrigger>
+                                <SelectValue />
+                            </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All</SelectItem>
-                                {branches.map((b)=> <SelectItem key={b.id} value={String(b.id)}>{b.name}</SelectItem>)}
+                                {branches.map((b) => (
+                                    <SelectItem key={b.id} value={String(b.id)}>
+                                        {b.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="flex-1 min-w-[200px]">
-                        <Label className="text-xs font-medium mb-1 block">Search</Label>
-                        <Input placeholder="Name / email / phone" value={localFilters.q} onChange={e=> setLocalFilters(f=> ({...f,q:e.target.value}))} onKeyDown={handleSearchKey} />
+                    <div className="min-w-[200px] flex-1">
+                        <Label className="mb-1 block text-xs font-medium">Search</Label>
+                        <Input
+                            placeholder="Name / email / phone"
+                            value={localFilters.q}
+                            onChange={(e) => setLocalFilters((f) => ({ ...f, q: e.target.value }))}
+                            onKeyDown={handleSearchKey}
+                        />
                     </div>
-                    <Button variant="secondary" onClick={()=> applyFilters()}>Apply</Button>
-                    <Button variant="outline" onClick={()=> { setLocalFilters({ status:'all', branch:'all', q:''}); applyFilters({ status:'all', branch:'all', q:''}); }}>Reset</Button>
+                    <Button variant="secondary" onClick={() => applyFilters()}>
+                        Apply
+                    </Button>
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            setLocalFilters({ status: 'all', branch: 'all', q: '' });
+                            applyFilters({ status: 'all', branch: 'all', q: '' });
+                        }}
+                    >
+                        Reset
+                    </Button>
                 </div>
                 <div className="mb-4 flex flex-row">
                     <form onSubmit={handleSubmit}>
@@ -232,25 +275,52 @@ export default function SupplierIndex() {
                 </div>
                 <SupplierTable suppliers={suppliers.data || suppliers} />
                 {suppliers?.links && (
-                    <div className="flex justify-between items-center flex-wrap gap-4 mt-4">
-                        <p className="text-xs text-muted-foreground">Showing {suppliers.data.length} of {suppliers.total} suppliers</p>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+                        <p className="text-xs text-muted-foreground">
+                            Showing {suppliers.data.length} of {suppliers.total} suppliers
+                        </p>
                         <Pagination>
                             <PaginationContent>
                                 {suppliers.prev_page_url && (
                                     <PaginationItem>
-                                        <PaginationPrevious href={suppliers.prev_page_url} onClick={e=> { e.preventDefault(); router.get(suppliers.prev_page_url, {}, { preserveState:true, replace:true }); }} />
+                                        <PaginationPrevious
+                                            href={suppliers.prev_page_url}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                router.get(suppliers.prev_page_url, {}, { preserveState: true, replace: true });
+                                            }}
+                                        />
                                     </PaginationItem>
                                 )}
-                                {suppliers.links.filter((l)=> l.label !== 'Previous' && l.label !== 'Next').map((l,i)=> (
-                                    <PaginationItem key={i}>
-                                        {l.url ? (
-                                            <PaginationLink href={l.url} isActive={l.active} onClick={e=> { e.preventDefault(); router.get(l.url, {}, { preserveState:true, replace:true }); }}>{l.label}</PaginationLink>
-                                        ) : <span className="px-2 text-xs">...</span>}
-                                    </PaginationItem>
-                                ))}
+                                {suppliers.links
+                                    .filter((l) => l.label !== 'Previous' && l.label !== 'Next')
+                                    .map((l, i) => (
+                                        <PaginationItem key={i}>
+                                            {l.url ? (
+                                                <PaginationLink
+                                                    href={l.url}
+                                                    isActive={l.active}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        router.get(l.url, {}, { preserveState: true, replace: true });
+                                                    }}
+                                                >
+                                                    {l.label}
+                                                </PaginationLink>
+                                            ) : (
+                                                <span className="px-2 text-xs">...</span>
+                                            )}
+                                        </PaginationItem>
+                                    ))}
                                 {suppliers.next_page_url && (
                                     <PaginationItem>
-                                        <PaginationNext href={suppliers.next_page_url} onClick={e=> { e.preventDefault(); router.get(suppliers.next_page_url, {}, { preserveState:true, replace:true }); }} />
+                                        <PaginationNext
+                                            href={suppliers.next_page_url}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                router.get(suppliers.next_page_url, {}, { preserveState: true, replace: true });
+                                            }}
+                                        />
                                     </PaginationItem>
                                 )}
                             </PaginationContent>

@@ -15,7 +15,7 @@ class SaleController extends Controller
         $query = Sale::with(['customer', 'branch', 'product']);
 
         // Role restriction
-        if (!$request->user()->isAdmin()) {
+        if (! $request->user()->isAdmin()) {
             $query->where('branch_id', $request->user()->branch_id);
         }
 
@@ -27,15 +27,15 @@ class SaleController extends Controller
             $query->where('product_id', $product);
         }
         if ($customer = $request->get('customer')) {
-            $query->where(function($q) use ($customer) {
-                $q->where('customer_name','like',"%{$customer}%")
-                  ->orWhereHas('customer', fn($cq) => $cq->where('name','like',"%{$customer}%"));
+            $query->where(function ($q) use ($customer) {
+                $q->where('customer_name', 'like', "%{$customer}%")
+                    ->orWhereHas('customer', fn ($cq) => $cq->where('name', 'like', "%{$customer}%"));
             });
         }
         if ($search = $request->get('q')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
-                  ->orWhere('customer_name','like',"%{$search}%");
+                    ->orWhere('customer_name', 'like', "%{$search}%");
             });
         }
         if ($dateFrom = $request->get('from')) {

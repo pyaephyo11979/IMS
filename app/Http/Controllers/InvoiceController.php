@@ -87,7 +87,7 @@ class InvoiceController extends Controller
 
     public function index(Request $request)
     {
-    $query = Invoice::query()->with(['customer:id,name', 'sales:id,total_amount,status']);
+        $query = Invoice::query()->with(['customer:id,name', 'sales:id,total_amount,status']);
 
         // Role-based scope: role 2 (admin) sees all, role 1 (cashier) limited to their branch
         $user = $request->user();
@@ -106,7 +106,7 @@ class InvoiceController extends Controller
         if ($status = $request->get('status')) {
             $query->where('status', $status);
         }
-    // Type fixed to sale now; no filtering by type
+        // Type fixed to sale now; no filtering by type
         if ($search = $request->get('q')) {
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
@@ -159,7 +159,7 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-    $invoice = Invoice::with(['customer:id,name', 'sales:id,total_amount,status'])
+        $invoice = Invoice::with(['customer:id,name', 'sales:id,total_amount,status'])
             ->findOrFail($id);
 
         $salesTotal = $invoice->sales->sum('total_amount');
@@ -175,7 +175,7 @@ class InvoiceController extends Controller
             'computed_sales_total' => $salesTotal,
             'difference' => $invoice->total_amount - $salesTotal,
             'customer' => $invoice->customer,
-                'supplier' => null,
+            'supplier' => null,
             'sales' => $invoice->sales->map(fn ($s) => [
                 'id' => $s->id,
                 'total_amount' => $s->total_amount,
@@ -202,6 +202,7 @@ class InvoiceController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
         $invoice->update($request->only(['status', 'discount', 'tax_amount', 'total_amount', 'notes']));
+
         return redirect()->route('invoices.show', $invoice->id)->with('success', 'Invoice updated.');
     }
 
@@ -209,6 +210,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
-    return redirect()->route('invoices.index')->with('success', 'Invoice deleted.');
+
+        return redirect()->route('invoices.index')->with('success', 'Invoice deleted.');
     }
 }
