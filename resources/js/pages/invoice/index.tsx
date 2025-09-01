@@ -51,7 +51,6 @@ interface PageProps {
     auth: { user: AuthUser };
 }
 
-
 function statusVariant(status: string) {
     switch (status) {
         case 'paid':
@@ -73,13 +72,16 @@ export default function InvoiceIndex() {
         q: filters.q || '',
     });
 
-        const breadcrumbs: BreadcrumbItem[] = auth.user.role == '2' ? [
-        {title: 'Dashboard', href: '/dashboard' },
-        { title: 'Invoices', href: '/invoices' },
-    ] : [
-        { title: 'Pos', href: '/pos' },
-        { title: 'Invoices', href: '/invoices' },
-    ];
+    const breadcrumbs: BreadcrumbItem[] =
+        auth.user.role == '2'
+            ? [
+                  { title: 'Dashboard', href: '/dashboard' },
+                  { title: 'Invoices', href: '/invoices' },
+              ]
+            : [
+                  { title: 'Pos', href: '/pos' },
+                  { title: 'Invoices', href: '/invoices' },
+              ];
 
     function applyFilters(partial?: Partial<typeof local>) {
         const next = { ...local, ...(partial || {}) };

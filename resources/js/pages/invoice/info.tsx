@@ -47,16 +47,18 @@ export default function InvoiceInfo() {
     const { invoice, auth } = usePage().props as unknown as { invoice: InvoiceData; auth: { user: { role: string | number } } };
     const printRef = useRef<HTMLDivElement | null>(null);
 
-    const breadcrumbs: BreadcrumbItem[] = auth.user.role == '2' ? [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Invoices', href: '/invoices' },
-        { title: invoice.invoice_number, href: `/invoices/${invoice.id}` }
-
-    ] : [
-        { title: 'Pos', href: '/pos' },
-        { title: 'Invoices', href: '/invoices' },
-        { title: invoice.invoice_number, href: `/invoices/${invoice.id}` }
-    ];
+    const breadcrumbs: BreadcrumbItem[] =
+        auth.user.role == '2'
+            ? [
+                  { title: 'Dashboard', href: '/dashboard' },
+                  { title: 'Invoices', href: '/invoices' },
+                  { title: invoice.invoice_number, href: `/invoices/${invoice.id}` },
+              ]
+            : [
+                  { title: 'Pos', href: '/pos' },
+                  { title: 'Invoices', href: '/invoices' },
+                  { title: invoice.invoice_number, href: `/invoices/${invoice.id}` },
+              ];
 
     function handlePrint() {
         if (!printRef.current) return;

@@ -10,7 +10,6 @@ import { useMemo } from 'react';
 
 // Breadcrumbs for invoice creation
 
-
 interface Customer {
     id: number | string;
     name: string;
@@ -45,16 +44,18 @@ export default function CreateInvoice() {
     }>;
 
     const role = pageProps.auth?.user?.role;
-    const breadcrumbs: BreadcrumbItem[] = role == '2' ? [
-        {title: 'Dashboard', href: '/dashboard' },
-        { title: 'Invoices', href: '/invoices' },
-        { title: 'Create', href: '/invoices/create' },
-    ] : [
-        { title: 'Pos', href: '/pos' },
-        { title: 'Invoices', href: '/invoices' },
-        { title: 'Create', href: '/invoices/create' },
-    ];
-
+    const breadcrumbs: BreadcrumbItem[] =
+        role == '2'
+            ? [
+                  { title: 'Dashboard', href: '/dashboard' },
+                  { title: 'Invoices', href: '/invoices' },
+                  { title: 'Create', href: '/invoices/create' },
+              ]
+            : [
+                  { title: 'Pos', href: '/pos' },
+                  { title: 'Invoices', href: '/invoices' },
+                  { title: 'Create', href: '/invoices/create' },
+              ];
 
     const customers = useMemo(() => pageProps.customers ?? [], [pageProps.customers]);
     const sales = useMemo(() => pageProps.sales ?? [], [pageProps.sales]);
@@ -165,8 +166,8 @@ export default function CreateInvoice() {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex items-end gap-4 flex-wrap">
-                            <div className="flex-1 min-w-[220px]">
+                        <div className="flex flex-wrap items-end gap-4">
+                            <div className="min-w-[220px] flex-1">
                                 <Label className="text-sm font-medium">Attach Sales</Label>
                                 {(!data.customer_id || data.customer_id === '') && (
                                     <p className="text-xs text-muted-foreground">Select a customer OR search walk‑in sales.</p>
@@ -175,7 +176,9 @@ export default function CreateInvoice() {
                             {!data.customer_id && (
                                 <div className="flex items-end gap-2">
                                     <div>
-                                        <Label htmlFor="sale_search" className="text-xs">Walk‑in Sale Search</Label>
+                                        <Label htmlFor="sale_search" className="text-xs">
+                                            Walk‑in Sale Search
+                                        </Label>
                                         <Input
                                             id="sale_search"
                                             defaultValue={initialSaleSearch}
