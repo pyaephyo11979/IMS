@@ -6,10 +6,9 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 interface InvoiceSale {
     id: number | string;
@@ -27,7 +26,6 @@ interface InvoiceItem {
     status: string;
     total_amount: number;
     computed_sales_total: number;
-    difference: number;
     customer?: Party | null;
     supplier?: Party | null;
     sales_count: number;
@@ -53,7 +51,6 @@ interface PageProps {
     auth: { user: AuthUser };
 }
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Invoices', href: '/invoices' }];
 
 function statusVariant(status: string) {
     switch (status) {
@@ -76,6 +73,14 @@ export default function InvoiceIndex() {
         q: filters.q || '',
     });
 
+        const breadcrumbs: BreadcrumbItem[] = auth.user.role == '2' ? [
+        {title: 'Dashboard', href: '/dashboard' },
+        { title: 'Invoices', href: '/invoices' },
+    ] : [
+        { title: 'Pos', href: '/pos' },
+        { title: 'Invoices', href: '/invoices' },
+    ];
+
     function applyFilters(partial?: Partial<typeof local>) {
         const next = { ...local, ...(partial || {}) };
         setLocal(next);
@@ -90,17 +95,13 @@ export default function InvoiceIndex() {
         );
     }
 
-    const diffTotals = useMemo(() => {
-        const positive = invoices.data.reduce((s, i) => s + (i.difference > 0 ? i.difference : 0), 0);
-        const negative = invoices.data.reduce((s, i) => s + (i.difference < 0 ? i.difference : 0), 0);
-        return { positive, negative };
-    }, [invoices.data]);
+    // Removed page-level diff +/- summary per request
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Invoices" />
             <div className="mt-2 flex w-full max-w-7xl flex-col gap-8 px-4 md:px-8 lg:px-10">
-                <div className="grid gap-4 md:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-sm">Total</CardTitle>
@@ -121,16 +122,6 @@ export default function InvoiceIndex() {
                             <CardDescription>Awaiting payment</CardDescription>
                         </CardHeader>
                         <CardContent className="text-2xl font-semibold">{summary.pending}</CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-sm">Diff +/- (page)</CardTitle>
-                            <CardDescription>Pos / Neg</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-1 text-sm font-medium">
-                            <span className="text-emerald-600 dark:text-emerald-400">+{diffTotals.positive.toLocaleString()}</span>
-                            <span className="text-red-600 dark:text-red-400">{diffTotals.negative.toLocaleString()}</span>
-                        </CardContent>
                     </Card>
                 </div>
 
@@ -204,7 +195,6 @@ export default function InvoiceIndex() {
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Amount</TableHead>
                                 <TableHead className="text-right">Sales Total</TableHead>
-                                <TableHead className="text-right">Diff</TableHead>
                                 <TableHead>Customer/Supplier</TableHead>
                                 <TableHead className="text-center">Sales</TableHead>
                                 <TableHead>Date</TableHead>
@@ -220,7 +210,6 @@ export default function InvoiceIndex() {
                                 </TableRow>
                             )}
                             {invoices.data.map((inv, idx) => {
-                                const diff = inv.difference;
                                 return (
                                     <TableRow key={inv.id}>
                                         <TableCell>{(invoices.current_page - 1) * 10 + idx + 1}</TableCell>
@@ -241,18 +230,6 @@ export default function InvoiceIndex() {
                                         </TableCell>
                                         <TableCell className="text-right font-medium">{inv.total_amount.toLocaleString()}</TableCell>
                                         <TableCell className="text-right">{inv.computed_sales_total.toLocaleString()}</TableCell>
-                                        <TableCell
-                                            className={cn(
-                                                'text-right font-medium',
-                                                diff === 0
-                                                    ? 'text-muted-foreground'
-                                                    : diff > 0
-                                                      ? 'text-emerald-600 dark:text-emerald-400'
-                                                      : 'text-red-600 dark:text-red-400',
-                                            )}
-                                        >
-                                            {diff.toLocaleString()}
-                                        </TableCell>
                                         <TableCell className="max-w-[180px]">
                                             <div className="flex flex-col gap-1 text-xs">
                                                 {inv.customer && <span className="truncate">Customer: {inv.customer.name}</span>}

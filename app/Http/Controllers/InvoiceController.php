@@ -14,21 +14,34 @@ class InvoiceController extends Controller
     public function create(Request $request)
     {
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
-
-        $salesQuery = Sale::select('id', 'total_amount', 'status');
         $selectedCustomerId = $request->get('customer_id');
+        $saleSearch = trim((string) $request->get('sale_search', ''));
+
+        $salesQuery = Sale::select('id', 'total_amount', 'status', 'customer_id', 'customer_name');
+
         if ($selectedCustomerId) {
             $salesQuery->where('customer_id', $selectedCustomerId);
+        } elseif ($saleSearch !== '') {
+            // Walk-in search: match by ID (numeric) or customer_name (partial) for sales without a registered customer
+            $salesQuery->where(function ($q) use ($saleSearch) {
+                if (is_numeric($saleSearch)) {
+                    $q->orWhere('id', (int) $saleSearch);
+                }
+                $q->orWhere('customer_name', 'like', "%{$saleSearch}%");
+            });
         } else {
-            // If no customer selected, don't load all sales to reduce noise; return empty collection
-            $salesQuery->whereRaw('1 = 0');
+            // No filters; avoid dumping full sales list
+            $salesQuery->whereRaw('1=0');
         }
+
+        // Limit results for performance
         $sales = $salesQuery->latest()->limit(200)->get();
 
         return Inertia::render('invoice/create', [
             'customers' => $customers,
             'sales' => $sales,
             'selected_customer_id' => $selectedCustomerId,
+            'sale_search' => $saleSearch,
         ]);
     }
 

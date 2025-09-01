@@ -23,7 +23,6 @@ interface InvoiceData {
     tax_amount: number;
     discount: number;
     computed_sales_total: number;
-    difference: number;
     customer?: { id: number | string; name: string } | null;
     supplier?: { id: number | string; name: string } | null;
     sales: InvoiceSale[];
@@ -48,9 +47,15 @@ export default function InvoiceInfo() {
     const { invoice, auth } = usePage().props as unknown as { invoice: InvoiceData; auth: { user: { role: string | number } } };
     const printRef = useRef<HTMLDivElement | null>(null);
 
-    const breadcrumbs: BreadcrumbItem[] = [
+    const breadcrumbs: BreadcrumbItem[] = auth.user.role == '2' ? [
+        { title: 'Dashboard', href: '/dashboard' },
         { title: 'Invoices', href: '/invoices' },
-        { title: invoice.invoice_number, href: `/invoices/${invoice.id}` },
+        { title: invoice.invoice_number, href: `/invoices/${invoice.id}` }
+
+    ] : [
+        { title: 'Pos', href: '/pos' },
+        { title: 'Invoices', href: '/invoices' },
+        { title: invoice.invoice_number, href: `/invoices/${invoice.id}` }
     ];
 
     function handlePrint() {
@@ -178,10 +183,7 @@ export default function InvoiceInfo() {
                                                     <span>Total</span>
                                                     <span>{invoice.total_amount.toLocaleString()} MMK</span>
                                                 </div>
-                                                <div className="flex justify-between py-1 text-muted-foreground">
-                                                    <span>Diff</span>
-                                                    <span>{invoice.difference.toLocaleString()} MMK</span>
-                                                </div>
+                                                {/* Diff removed */}
                                             </div>
                                         </div>
                                         <div className="mt-10 flex items-center justify-between border-t pt-6 text-[10px] text-muted-foreground">
@@ -238,10 +240,7 @@ export default function InvoiceInfo() {
                                         <span>Total</span>
                                         <span>{invoice.total_amount.toLocaleString()}</span>
                                     </div>
-                                    <div className="flex justify-between text-muted-foreground">
-                                        <span>Difference</span>
-                                        <span>{invoice.difference.toLocaleString()}</span>
-                                    </div>
+                                    {/* Difference removed */}
                                 </CardContent>
                             </Card>
                             <Card>

@@ -9,10 +9,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useMemo } from 'react';
 
 // Breadcrumbs for invoice creation
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Invoices', href: '/invoices' },
-    { title: 'Create', href: '/invoices/create' },
-];
+
 
 interface Customer {
     id: number | string;
@@ -43,10 +40,26 @@ export default function CreateInvoice() {
         customers: Customer[];
         sales: SaleLite[];
         selected_customer_id: string | number | null;
+        sale_search: string;
+        auth: { user: { role: string | number } };
     }>;
+
+    const role = pageProps.auth?.user?.role;
+    const breadcrumbs: BreadcrumbItem[] = role == '2' ? [
+        {title: 'Dashboard', href: '/dashboard' },
+        { title: 'Invoices', href: '/invoices' },
+        { title: 'Create', href: '/invoices/create' },
+    ] : [
+        { title: 'Pos', href: '/pos' },
+        { title: 'Invoices', href: '/invoices' },
+        { title: 'Create', href: '/invoices/create' },
+    ];
+
+
     const customers = useMemo(() => pageProps.customers ?? [], [pageProps.customers]);
     const sales = useMemo(() => pageProps.sales ?? [], [pageProps.sales]);
     const selectedCustomerId = pageProps.selected_customer_id ?? '';
+    const initialSaleSearch = pageProps.sale_search ?? '';
 
     const { data, setData, post, processing } = useForm<FormData>({
         customer_id: selectedCustomerId ? String(selectedCustomerId) : '',
@@ -152,11 +165,46 @@ export default function CreateInvoice() {
                     </div>
 
                     <div className="space-y-4">
-                        <Label className="text-sm font-medium">Attach Sales</Label>
-                        {(!data.customer_id || data.customer_id === '') && (
-                            <p className="text-sm text-muted-foreground">Select a customer to load their sales.</p>
+                        <div className="flex items-end gap-4 flex-wrap">
+                            <div className="flex-1 min-w-[220px]">
+                                <Label className="text-sm font-medium">Attach Sales</Label>
+                                {(!data.customer_id || data.customer_id === '') && (
+                                    <p className="text-xs text-muted-foreground">Select a customer OR search walk‑in sales.</p>
+                                )}
+                            </div>
+                            {!data.customer_id && (
+                                <div className="flex items-end gap-2">
+                                    <div>
+                                        <Label htmlFor="sale_search" className="text-xs">Walk‑in Sale Search</Label>
+                                        <Input
+                                            id="sale_search"
+                                            defaultValue={initialSaleSearch}
+                                            placeholder="Sale ID or customer name"
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    const val = (e.target as HTMLInputElement).value;
+                                                    router.get('/invoices/create', { sale_search: val }, { preserveState: true, replace: true });
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            const input = document.getElementById('sale_search') as HTMLInputElement | null;
+                                            const val = input?.value || '';
+                                            router.get('/invoices/create', { sale_search: val }, { preserveState: true, replace: true });
+                                        }}
+                                    >
+                                        Search
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                        {(data.customer_id || initialSaleSearch) && sales.length === 0 && (
+                            <p className="text-sm text-muted-foreground">No sales found.</p>
                         )}
-                        {data.customer_id && sales.length === 0 && <p className="text-sm text-muted-foreground">No sales found for this customer.</p>}
                         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                             {sales.map((sale) => {
                                 const checked = data.sales.map(String).includes(String(sale.id));
