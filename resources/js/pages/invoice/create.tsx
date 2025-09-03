@@ -62,7 +62,7 @@ export default function CreateInvoice() {
     const selectedCustomerId = pageProps.selected_customer_id ?? '';
     const initialSaleSearch = pageProps.sale_search ?? '';
 
-    const { data, setData, post, processing } = useForm<FormData>({
+    const { data, setData, processing } = useForm<FormData>({
         customer_id: selectedCustomerId ? String(selectedCustomerId) : '',
         customer_name: '',
         status: 'pending',
@@ -99,11 +99,16 @@ export default function CreateInvoice() {
 
     function submit(e: React.FormEvent) {
         e.preventDefault();
-        // Convert percent inputs to absolute amounts expected by backend
-        setData('discount', Number(discountAmount.toFixed(2)));
-        setData('tax_amount', Number(taxAmount.toFixed(2)));
-        setData('total_amount', Number(grandTotal.toFixed(2)));
-        post('/invoices');
+        const discountValue = Number(discountAmount.toFixed(2));
+        const taxValue = Number(taxAmount.toFixed(2));
+        const totalValue = Number(grandTotal.toFixed(2));
+        // Post explicit payload so we don't rely on async state flush
+        router.post('/invoices', {
+            ...data,
+            discount: discountValue,
+            tax_amount: taxValue,
+            total_amount: totalValue,
+        });
     }
 
     return (
