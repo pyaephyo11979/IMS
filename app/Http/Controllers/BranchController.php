@@ -31,7 +31,7 @@ class BranchController extends Controller
 
         Branch::create($request->all());
 
-        return redirect()->route('branches.index')->with('success', 'Branch created successfully.');
+        return redirect()->route('users.index')->with('success', 'Branch created successfully.');
     }
 
     public function show($id)
@@ -81,5 +81,21 @@ class BranchController extends Controller
         $branch->delete();
 
         return redirect()->route('branches.index')->with('success', 'Branch deleted successfully.');
+    }
+
+    /**
+     * Update only the status field of a branch (active|inactive).
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $branch = Branch::findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:active,inactive',
+        ]);
+
+        $branch->update(['status' => $validated['status']]);
+
+    return redirect()->back()->with('success', 'Branch status updated.');
     }
 }

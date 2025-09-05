@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockNotificationController;
@@ -36,6 +37,13 @@ Route::middleware(['auth', 'role:2'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::post('/users/delete/{id}', [UserController::class, 'destroy'])->name('users.delete');
+
+    // Branch management (admin)
+    Route::get('/branches', [BranchController::class, 'index'])->name('branches.index');
+    Route::post('/branches', [BranchController::class, 'store'])->name('branches.store');
+    Route::post('/branches/update/{id}', [BranchController::class, 'update'])->name('branches.update');
+    Route::post('/branches/status/{id}', [BranchController::class, 'updateStatus'])->name('branches.status');
+    Route::post('/branches/delete/{id}', [BranchController::class, 'destroy'])->name('branches.delete');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');

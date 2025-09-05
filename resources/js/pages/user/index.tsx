@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { UserTable } from '@/components/user-table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -28,29 +28,28 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface BranchListItem { id: string; name: string; status: 'active'|'inactive'; products_count?: number; sales_count?: number; address?: string; contact_number?: string }
+interface UserRecord { id: number; name: string; email: string; role: string; branch: { id: number; name: string } }
+
 export default function UserIndex() {
-    const { users, branches } = usePage().props;
-    const { data, post, setData, errors, processing } = useForm({
-        name: '',
-        email: '',
-        password: '',
-        role: '',
-        branch_id: '',
+    const { users, branches } = usePage<{ users: { data: UserRecord[] }; branches: BranchListItem[] }>().props;
+    const userForm = useForm<{ name:string; email:string; password:string; role:string; branch_id:string }>({
+        name: '', email: '', password: '', role: '', branch_id: '',
     });
-    function handleSubmit(e) {
+
+    function submitUser(e: React.FormEvent) {
         e.preventDefault();
-        post('/users', data);
+        userForm.post('/users', { preserveScroll: true, onSuccess: () => userForm.reset() });
     }
-    const roles = [
-        { id: '1', name: 'Cashier' },
-        { id: '2', name: 'Admin' },
-    ];
+
+    const roles = [ { id: '1', name: 'Cashier' }, { id: '2', name: 'Admin' } ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Users" />
             <div className="flex flex-col p-4">
-                <div className="mb-4 flex flex-row">
-                    <form onSubmit={handleSubmit}>
+                <div className="mb-4 flex flex-row flex-wrap gap-4">
+                    <form onSubmit={submitUser}>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outline">Add User</Button>
@@ -58,81 +57,170 @@ export default function UserIndex() {
                             <DialogContent>
                                 <DialogHeader>
                                     <DialogTitle>Add User</DialogTitle>
-                                    <DialogDescription>Fill in the details to create a new user.</DialogDescription>
+                                    <DialogDescription>Create a new system user.</DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">
                                     <div>
-                                        <Label htmlFor="name">Name</Label>
-                                        <Input onChange={(e) => setData('name', e.target.value)} value={data.name} id="name" name="name" />
-                                        {errors.name && <p className="text-red-500">{errors.name}</p>}
+                                        <Label htmlFor="u_name">Name</Label>
+                                        <Input id="u_name" value={userForm.data.name} onChange={e=>userForm.setData('name', e.target.value)} />
+                                        {userForm.errors.name && <p className="text-red-500 text-xs">{userForm.errors.name}</p>}
                                     </div>
                                     <div>
-                                        <Label htmlFor="email">Email</Label>
-                                        <Input
-                                            value={data.email}
-                                            onChange={(e) => setData('email', e.target.value)}
-                                            id="email"
-                                            name="email"
-                                            type="email"
-                                        />
-                                        {errors.email && <p className="text-red-500">{errors.email}</p>}
+                                        <Label htmlFor="u_email">Email</Label>
+                                        <Input id="u_email" type="email" value={userForm.data.email} onChange={e=>userForm.setData('email', e.target.value)} />
+                                        {userForm.errors.email && <p className="text-red-500 text-xs">{userForm.errors.email}</p>}
                                     </div>
                                     <div>
-                                        <Label htmlFor="password">Password</Label>
-                                        <Input
-                                            value={data.password}
-                                            onChange={(e) => setData('password', e.target.value)}
-                                            id="password"
-                                            name="password"
-                                            type="password"
-                                        />
-                                        {errors.password && <p className="text-red-500">{errors.password}</p>}
+                                        <Label htmlFor="u_pass">Password</Label>
+                                        <Input id="u_pass" type="password" value={userForm.data.password} onChange={e=>userForm.setData('password', e.target.value)} />
+                                        {userForm.errors.password && <p className="text-red-500 text-xs">{userForm.errors.password}</p>}
                                     </div>
-                                    <div className="flex flex-2 gap-2">
-                                        <Select value={data.role} onValueChange={(value) => setData('role', value)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a role" />
-                                            </SelectTrigger>
+                                    <div className="flex gap-2">
+                                        <Select value={userForm.data.role} onValueChange={v=>userForm.setData('role', v)}>
+                                            <SelectTrigger><SelectValue placeholder="Role" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    {roles.map((role) => (
-                                                        <SelectItem key={role.id} value={role.id}>
-                                                            {role.name}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {roles.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
-                                        <Select value={data.branch_id} onValueChange={(value) => setData('branch_id', value)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select a branch" />
-                                            </SelectTrigger>
+                                        <Select value={userForm.data.branch_id} onValueChange={v=>userForm.setData('branch_id', v)}>
+                                            <SelectTrigger><SelectValue placeholder="Branch" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    {branches.map((branch) => (
-                                                        <SelectItem key={branch.id} value={branch.id}>
-                                                            {branch.name}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {branches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
                                 <DialogFooter>
-                                    <Button onClick={handleSubmit} disabled={processing}>
-                                        Create
-                                    </Button>
-                                    <DialogClose asChild>
-                                        <Button variant="outline">Cancel</Button>
-                                    </DialogClose>
+                                    <Button disabled={userForm.processing}>Create</Button>
+                                    <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
                     </form>
+                    <ManageBranchesDialog branches={branches} />
                 </div>
                 <UserTable users={users} />
             </div>
         </AppLayout>
+    );
+}
+
+function ManageBranchesDialog({ branches }: { branches: BranchListItem[] }) {
+    const createForm = useForm<{ name:string; address:string; contact_number:string; status:'active'|'inactive' }>({
+        name: '', address: '', contact_number: '', status: 'active',
+    });
+
+    function submitNew(e: React.FormEvent) {
+        e.preventDefault();
+        createForm.post('/branches', { preserveScroll: true, onSuccess: () => createForm.reset() });
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild><Button variant="outline">Manage Branches</Button></DialogTrigger>
+            <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                    <DialogTitle>Branch Management</DialogTitle>
+                    <DialogDescription>Toggle status, delete unused branches, create new.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                    <form onSubmit={submitNew} className="grid grid-cols-5 gap-2 text-xs items-end">
+                        <div>
+                            <Label className="text-xs">Name</Label>
+                            <Input value={createForm.data.name} onChange={e=>createForm.setData('name', e.target.value)} />
+                        </div>
+                        <div className="col-span-2">
+                            <Label className="text-xs">Address</Label>
+                            <Input value={createForm.data.address} onChange={e=>createForm.setData('address', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label className="text-xs">Contact</Label>
+                            <Input value={createForm.data.contact_number} onChange={e=>createForm.setData('contact_number', e.target.value)} />
+                        </div>
+                        <div>
+                            <Label className="text-xs">Status</Label>
+                            <Select value={createForm.data.status} onValueChange={v=>createForm.setData('status', v as 'active'|'inactive')}>
+                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="active">Active</SelectItem>
+                                    <SelectItem value="inactive">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="col-span-5 flex justify-end">
+                            <Button size="sm" disabled={createForm.processing}>Create</Button>
+                        </div>
+                        {Object.values(createForm.errors).length > 0 && (
+                            <div className="col-span-5 text-xs text-red-600">{Object.values(createForm.errors).join(', ')}</div>
+                        )}
+                    </form>
+                    <div className="max-h-72 overflow-auto border border-black">
+                        <table className="w-full text-xs">
+                            <thead className="border-b border-black bg-black text-white">
+                                <tr>
+                                    <th className="px-2 py-1 text-left">Name</th>
+                                    <th className="px-2 py-1 text-left">Status</th>
+                                    <th className="px-2 py-1">P</th>
+                                    <th className="px-2 py-1">S</th>
+                                    <th className="px-2 py-1">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {branches.map(b => <BranchRow key={b.id} branch={b} />)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild><Button variant="outline">Close</Button></DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function BranchRow({ branch }: { branch: BranchListItem }) {
+    const statusForm = useForm<{ status:'active'|'inactive' }>({ status: branch.status });
+    const deleteForm = useForm();
+    const locked = (branch.products_count ?? 0) > 0 || (branch.sales_count ?? 0) > 0;
+
+    function toggle() {
+        const ns = statusForm.data.status === 'active' ? 'inactive' : 'active';
+        statusForm.setData('status', ns);
+        router.post(`/branches/status/${branch.id}`, { status: ns }, { preserveScroll: true });
+    }
+    function remove() {
+        if (locked) return;
+        if (confirm(`Delete branch ${branch.name}?`)) {
+            deleteForm.post(`/branches/delete/${branch.id}`, { preserveScroll: true });
+        }
+    }
+    return (
+        <tr className="border-b border-black last:border-0">
+            <td className="px-2 py-1">{branch.name}</td>
+            <td className="px-2 py-1">
+                <button
+                    onClick={toggle}
+                    disabled={statusForm.processing || deleteForm.processing}
+                    className={`rounded border px-2 py-0.5 border-black ${statusForm.data.status==='active'?'bg-white':'bg-black text-white'} text-[10px]`}
+                >
+                    {statusForm.data.status}
+                </button>
+            </td>
+            <td className="px-2 py-1 text-center">{branch.products_count ?? 0}</td>
+            <td className="px-2 py-1 text-center">{branch.sales_count ?? 0}</td>
+            <td className="px-2 py-1 text-center">
+                <button
+                    onClick={remove}
+                    disabled={locked || statusForm.processing || deleteForm.processing}
+                    className={`rounded border px-2 py-0.5 border-black text-[10px] ${locked?'opacity-40 cursor-not-allowed':'bg-white'}`}
+                    title={locked? 'Has products or sales':'Delete'}
+                >Del</button>
+            </td>
+        </tr>
     );
 }

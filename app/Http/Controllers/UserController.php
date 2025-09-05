@@ -27,7 +27,9 @@ class UserController extends Controller
         }
 
         $users = $query->orderByDesc('id')->paginate(10)->withQueryString();
-        $branches = Branch::select('id', 'name')->get();
+        $branches = Branch::select('id', 'name', 'status', 'address', 'contact_number')
+            ->withCount(['products', 'sales'])
+            ->get();
 
         return Inertia::render('user/index', [
             'users' => $users,
