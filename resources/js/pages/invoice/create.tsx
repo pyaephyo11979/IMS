@@ -18,6 +18,8 @@ interface SaleLite {
     id: number | string;
     total_amount: number;
     status: string;
+    discount_percent?: number;
+    tax_percent?: number;
 }
 type FormData = {
     customer_id: string | number | '';
@@ -77,6 +79,17 @@ export default function CreateInvoice() {
         type: 'sale',
     });
 
+    // Get discount/tax from first selected sale
+    const firstSelectedSale = useMemo(() => {
+        if (!data.sales.length) return undefined;
+        const selected = new Set(data.sales.map(String));
+        return sales.find((s) => selected.has(String(s.id)));
+    }, [data.sales, sales]);
+
+    // If a sale is selected and has discount/tax, use those values
+    const effectiveDiscountPercent = firstSelectedSale?.discount_percent ?? data.discount_percent;
+    const effectiveTaxPercent = firstSelectedSale?.tax_percent ?? data.tax_percent;
+
     // Base from selected sales
     const base = useMemo(() => {
         if (!data.sales.length) return 0;
@@ -84,9 +97,9 @@ export default function CreateInvoice() {
         return sales.filter((s) => selected.has(String(s.id))).reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
     }, [data.sales, sales]);
 
-    const discountAmount = useMemo(() => (data.discount_percent / 100) * base, [data.discount_percent, base]);
+    const discountAmount = useMemo(() => (effectiveDiscountPercent / 100) * base, [effectiveDiscountPercent, base]);
     const taxableBase = useMemo(() => Math.max(base - discountAmount, 0), [base, discountAmount]);
-    const taxAmount = useMemo(() => (data.tax_percent / 100) * taxableBase, [data.tax_percent, taxableBase]);
+    const taxAmount = useMemo(() => (effectiveTaxPercent / 100) * taxableBase, [effectiveTaxPercent, taxableBase]);
     const grandTotal = useMemo(() => Math.max(taxableBase + taxAmount, 0), [taxableBase, taxAmount]);
 
     function toggleSale(id: number | string) {
@@ -242,8 +255,9 @@ export default function CreateInvoice() {
                                 type="number"
                                 min={0}
                                 max={100}
-                                value={data.discount_percent}
+                                value={effectiveDiscountPercent}
                                 onChange={(e) => setData('discount_percent', Number(e.target.value) || 0)}
+                                disabled={!!firstSelectedSale && typeof firstSelectedSale.discount_percent === 'number'}
                             />
                             <p className="text-xs text-muted-foreground">Amount: {discountAmount.toLocaleString()} MMK</p>
                         </div>
@@ -254,8 +268,9 @@ export default function CreateInvoice() {
                                 type="number"
                                 min={0}
                                 max={100}
-                                value={data.tax_percent}
+                                value={effectiveTaxPercent}
                                 onChange={(e) => setData('tax_percent', Number(e.target.value) || 0)}
+                                disabled={!!firstSelectedSale && typeof firstSelectedSale.tax_percent === 'number'}
                             />
                             <p className="text-xs text-muted-foreground">Amount: {taxAmount.toLocaleString()} MMK</p>
                         </div>

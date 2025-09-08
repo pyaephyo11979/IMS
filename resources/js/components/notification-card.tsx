@@ -5,7 +5,7 @@ import { useForm } from '@inertiajs/react';
 import { BellRing, Mail, MailOpen, Trash } from 'lucide-react';
 export function NotificationCard({ notifications }: { notifications: any }) {
     const { post } = useForm();
-    const unreadNotifications = notifications.filter((n: any) => !n.is_read);
+    const unreadNotifications = notifications.filter((n: unknown) => !n.is_read);
 
     function handleRead(e: React.FormEvent, id: string) {
         e.preventDefault();

@@ -1,32 +1,52 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { SharedData } from '@/types';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm, usePage } from '@inertiajs/react';
 import { DialogClose } from '@radix-ui/react-dialog';
 import { CreditCardIcon, PackageOpenIcon, Trash2Icon } from 'lucide-react';
 
-export function ProductCard({ product }: any) {
-    const { auth } = usePage<SharedData>().props;
-    const { post, errors, get } = useForm();
+type BranchLite = { id: number | string; name: string };
+type CategoryLite = { id: number | string; name: string };
+type SupplierLite = { id: number | string; name: string };
+type ProductLite = {
+    id: number | string;
+    name: string;
+    price: number | string;
+    description: string;
+    stock_quantity: number;
+    category: CategoryLite;
+    supplier: SupplierLite;
+    branch: BranchLite;
+};
+type PageProps = {
+    auth: { user?: { role?: string | number } };
+    branches?: BranchLite[];
+};
+
+export function ProductCard({ product }: { product: ProductLite }) {
+    const { auth, branches = [] } = usePage<PageProps>().props;
+    const { post, get, processing } = useForm();
     const isAdmin = auth.user?.role == '2';
-    function handleEdit(e) {
-        e.preventDefault();
-        post(route('products.update', product.id), {
-            onSuccess: () => {
-                // Handle success
-            },
-            onError: () => {
-                // Handle error
-            },
-        });
-    }
-    function handleDelete(productId) {
+
+    function handleDelete(productId: ProductLite['id']) {
         post(route('products.destroy', productId));
     }
-    function handleMakeSale($pid: string) {
-        get(route('sales.create', $pid));
+    function handleMakeSale(pid: ProductLite['id']) {
+        get(route('sales.create', pid));
     }
+
+    // Local handlers for updating branch and stock
+    function submitBranchUpdate(newBranchId: string) {
+        if (!newBranchId) return;
+        // Send branch_id as query string
+        post(route('products.updateBranch', product.id) + `?branch_id=${encodeURIComponent(newBranchId)}`,  {
+            preserveScroll: true,
+        });
+    }
+
 
     return (
         <Card>
@@ -53,12 +73,31 @@ export function ProductCard({ product }: any) {
                                         <DialogDescription>{product.description}</DialogDescription>
                                     </DialogHeader>
                                     <div className="grid gap-4 py-4">
-                                        <div>
+                                        <div className="space-y-1">
                                             <p>Price: {product.price} MMK</p>
-                                            <p>Stock: {product.stock_quantity}</p>
                                             <p>Category: {product.category.name}</p>
                                             <p>Supplier: {product.supplier.name}</p>
-                                            <p>Branch: {product.branch.name}</p>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label className="text-xs">Stock Quantity</Label>
+                                            <div className="flex items-center gap-2">
+                                                <span>{product.stock_quantity}</span>
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label className="text-xs">Branch</Label>
+                                            <Select value={String(product.branch.id)} onValueChange={(v) => submitBranchUpdate(v)}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {branches.map((b) => (
+                                                        <SelectItem key={b.id} value={String(b.id)}>
+                                                            {b.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
                                     <DialogFooter>
@@ -66,7 +105,7 @@ export function ProductCard({ product }: any) {
                                             Delete <Trash2Icon />
                                         </Button>
                                         <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
+                                            <Button variant="outline">Close</Button>
                                         </DialogClose>
                                     </DialogFooter>
                                 </DialogContent>

@@ -11,6 +11,29 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
+    public function updateBranch(Request $request, $id)
+    {
+        $branchId = (int) $request->query('branch_id');
+        $request->merge(['branch_id' => $branchId]);
+        $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+        ]);
+        $product = Product::findOrFail($id);
+        $product->branch_id = $branchId;
+        $product->save();
+        return redirect()->back()->with('success', 'Product branch updated successfully. (branch_id: ' . $branchId . ')');
+    }
+
+    public function updateStock(Request $request, $id)
+    {
+        $request->validate([
+            'stock_quantity' => 'required|integer|min:0',
+        ]);
+        $product = Product::findOrFail($id);
+        $product->stock_quantity = $request->stock_quantity;
+        $product->save();
+        return redirect()->back()->with('success', 'Product stock updated successfully.');
+    }
     public function store(Request $request)
     {
         $request->validate([

@@ -28,7 +28,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function ProductIndex() {
     const { products, categories, branches, suppliers } = usePage<ShareData>().props;
     const pageLinks = products.links.filter((link, index) => index !== 0 && index !== products.links.length - 1);
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, reset } = useForm({
         name: '',
         description: '',
         price: '',
@@ -103,14 +103,14 @@ export default function ProductIndex() {
                                 </div>
                                 <div className="grid w-full items-center gap-1.5">
                                     <Label htmlFor="category">Category</Label>
-                                    <Select value={data.category_id} onValueChange={(value) => setData('category_id', value)}>
+                                    <Select value={String(data.category_id)} onValueChange={(value) => setData('category_id', value)}>
                                         <SelectTrigger id="category" className="w-full">
                                             <SelectValue placeholder="Select a category" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
                                                 {categories.map((category) => (
-                                                    <SelectItem key={category.id} value={category.id}>
+                                                    <SelectItem key={category.id} value={String(category.id)}>
                                                         {category.name}
                                                     </SelectItem>
                                                 ))}
@@ -120,14 +120,14 @@ export default function ProductIndex() {
                                 </div>
                                 <div className="grid w-full items-center gap-1.5">
                                     <Label htmlFor="branch">Branch</Label>
-                                    <Select value={data.branch_id} onValueChange={(value) => setData('branch_id', value)}>
+                                    <Select value={String(data.branch_id)} onValueChange={(value) => setData('branch_id', value)}>
                                         <SelectTrigger id="branch" className="w-full">
                                             <SelectValue placeholder="Select a branch" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
                                                 {branches.map((branch) => (
-                                                    <SelectItem key={branch.id} value={branch.id}>
+                                                    <SelectItem key={branch.id} value={String(branch.id)}>
                                                         {branch.name}
                                                     </SelectItem>
                                                 ))}
@@ -137,14 +137,14 @@ export default function ProductIndex() {
                                 </div>
                                 <div className="grid w-full items-center gap-1.5">
                                     <Label htmlFor="supplier">Supplier</Label>
-                                    <Select value={data.supplier_id} onValueChange={(value) => setData('supplier_id', value)}>
+                                    <Select value={String(data.supplier_id)} onValueChange={(value) => setData('supplier_id', value)}>
                                         <SelectTrigger id="supplier" className="w-full">
                                             <SelectValue placeholder="Select a supplier" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectGroup>
                                                 {suppliers.map((supplier) => (
-                                                    <SelectItem key={supplier.id} value={supplier.id}>
+                                                    <SelectItem key={supplier.id} value={String(supplier.id)}>
                                                         {supplier.name}
                                                     </SelectItem>
                                                 ))}

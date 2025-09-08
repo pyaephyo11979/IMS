@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react';
 export default function ProductInfo({ product }: any) {
-    return (
+        return (
         <div className={'flex flex-col rounded-md border border-gray-200 p-4'}>
             <Head title={product.name} />
 
@@ -14,3 +14,4 @@ export default function ProductInfo({ product }: any) {
         </div>
     );
 }
+    export default function ProductInfo({ product }: unknown) {

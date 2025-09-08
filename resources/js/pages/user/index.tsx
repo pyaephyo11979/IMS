@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { UserTable } from '@/components/user-table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -28,13 +28,31 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface BranchListItem { id: string; name: string; status: 'active'|'inactive'; products_count?: number; sales_count?: number; address?: string; contact_number?: string }
-interface UserRecord { id: number; name: string; email: string; role: string; branch: { id: number; name: string } }
+interface BranchListItem {
+    id: string;
+    name: string;
+    status: 'active' | 'inactive';
+    products_count?: number;
+    sales_count?: number;
+    address?: string;
+    contact_number?: string;
+}
+interface UserRecord {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    branch: { id: number; name: string };
+}
 
 export default function UserIndex() {
     const { users, branches } = usePage<{ users: { data: UserRecord[] }; branches: BranchListItem[] }>().props;
-    const userForm = useForm<{ name:string; email:string; password:string; role:string; branch_id:string }>({
-        name: '', email: '', password: '', role: '', branch_id: '',
+    const userForm = useForm<{ name: string; email: string; password: string; role: string; branch_id: string }>({
+        name: '',
+        email: '',
+        password: '',
+        role: '',
+        branch_id: '',
     });
 
     function submitUser(e: React.FormEvent) {
@@ -42,7 +60,10 @@ export default function UserIndex() {
         userForm.post('/users', { preserveScroll: true, onSuccess: () => userForm.reset() });
     }
 
-    const roles = [ { id: '1', name: 'Cashier' }, { id: '2', name: 'Admin' } ];
+    const roles = [
+        { id: '1', name: 'Cashier' },
+        { id: '2', name: 'Admin' },
+    ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -62,33 +83,55 @@ export default function UserIndex() {
                                 <div className="grid gap-4 py-4">
                                     <div>
                                         <Label htmlFor="u_name">Name</Label>
-                                        <Input id="u_name" value={userForm.data.name} onChange={e=>userForm.setData('name', e.target.value)} />
-                                        {userForm.errors.name && <p className="text-red-500 text-xs">{userForm.errors.name}</p>}
+                                        <Input id="u_name" value={userForm.data.name} onChange={(e) => userForm.setData('name', e.target.value)} />
+                                        {userForm.errors.name && <p className="text-xs text-red-500">{userForm.errors.name}</p>}
                                     </div>
                                     <div>
                                         <Label htmlFor="u_email">Email</Label>
-                                        <Input id="u_email" type="email" value={userForm.data.email} onChange={e=>userForm.setData('email', e.target.value)} />
-                                        {userForm.errors.email && <p className="text-red-500 text-xs">{userForm.errors.email}</p>}
+                                        <Input
+                                            id="u_email"
+                                            type="email"
+                                            value={userForm.data.email}
+                                            onChange={(e) => userForm.setData('email', e.target.value)}
+                                        />
+                                        {userForm.errors.email && <p className="text-xs text-red-500">{userForm.errors.email}</p>}
                                     </div>
                                     <div>
                                         <Label htmlFor="u_pass">Password</Label>
-                                        <Input id="u_pass" type="password" value={userForm.data.password} onChange={e=>userForm.setData('password', e.target.value)} />
-                                        {userForm.errors.password && <p className="text-red-500 text-xs">{userForm.errors.password}</p>}
+                                        <Input
+                                            id="u_pass"
+                                            type="password"
+                                            value={userForm.data.password}
+                                            onChange={(e) => userForm.setData('password', e.target.value)}
+                                        />
+                                        {userForm.errors.password && <p className="text-xs text-red-500">{userForm.errors.password}</p>}
                                     </div>
                                     <div className="flex gap-2">
-                                        <Select value={userForm.data.role} onValueChange={v=>userForm.setData('role', v)}>
-                                            <SelectTrigger><SelectValue placeholder="Role" /></SelectTrigger>
+                                        <Select value={userForm.data.role} onValueChange={(v) => userForm.setData('role', v)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Role" />
+                                            </SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    {roles.map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                                                    {roles.map((r) => (
+                                                        <SelectItem key={r.id} value={r.id}>
+                                                            {r.name}
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
-                                        <Select value={userForm.data.branch_id} onValueChange={v=>userForm.setData('branch_id', v)}>
-                                            <SelectTrigger><SelectValue placeholder="Branch" /></SelectTrigger>
+                                        <Select value={userForm.data.branch_id} onValueChange={(v) => userForm.setData('branch_id', v)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Branch" />
+                                            </SelectTrigger>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    {branches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                                                    {branches.map((b) => (
+                                                        <SelectItem key={b.id} value={b.id}>
+                                                            {b.name}
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
@@ -96,7 +139,11 @@ export default function UserIndex() {
                                 </div>
                                 <DialogFooter>
                                     <Button disabled={userForm.processing}>Create</Button>
-                                    <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="outline">
+                                            Cancel
+                                        </Button>
+                                    </DialogClose>
                                 </DialogFooter>
                             </DialogContent>
                         </Dialog>
@@ -110,8 +157,11 @@ export default function UserIndex() {
 }
 
 function ManageBranchesDialog({ branches }: { branches: BranchListItem[] }) {
-    const createForm = useForm<{ name:string; address:string; contact_number:string; status:'active'|'inactive' }>({
-        name: '', address: '', contact_number: '', status: 'active',
+    const createForm = useForm<{ name: string; address: string; contact_number: string; status: 'active' | 'inactive' }>({
+        name: '',
+        address: '',
+        contact_number: '',
+        status: 'active',
     });
 
     function submitNew(e: React.FormEvent) {
@@ -121,30 +171,34 @@ function ManageBranchesDialog({ branches }: { branches: BranchListItem[] }) {
 
     return (
         <Dialog>
-            <DialogTrigger asChild><Button variant="outline">Manage Branches</Button></DialogTrigger>
+            <DialogTrigger asChild>
+                <Button variant="outline">Manage Branches</Button>
+            </DialogTrigger>
             <DialogContent className="max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Branch Management</DialogTitle>
                     <DialogDescription>Toggle status, delete unused branches, create new.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                    <form onSubmit={submitNew} className="grid grid-cols-5 gap-2 text-xs items-end">
+                    <form onSubmit={submitNew} className="grid grid-cols-5 items-end gap-2 text-xs">
                         <div>
                             <Label className="text-xs">Name</Label>
-                            <Input value={createForm.data.name} onChange={e=>createForm.setData('name', e.target.value)} />
+                            <Input value={createForm.data.name} onChange={(e) => createForm.setData('name', e.target.value)} />
                         </div>
                         <div className="col-span-2">
                             <Label className="text-xs">Address</Label>
-                            <Input value={createForm.data.address} onChange={e=>createForm.setData('address', e.target.value)} />
+                            <Input value={createForm.data.address} onChange={(e) => createForm.setData('address', e.target.value)} />
                         </div>
                         <div>
                             <Label className="text-xs">Contact</Label>
-                            <Input value={createForm.data.contact_number} onChange={e=>createForm.setData('contact_number', e.target.value)} />
+                            <Input value={createForm.data.contact_number} onChange={(e) => createForm.setData('contact_number', e.target.value)} />
                         </div>
                         <div>
                             <Label className="text-xs">Status</Label>
-                            <Select value={createForm.data.status} onValueChange={v=>createForm.setData('status', v as 'active'|'inactive')}>
-                                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                            <Select value={createForm.data.status} onValueChange={(v) => createForm.setData('status', v as 'active' | 'inactive')}>
+                                <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue />
+                                </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="active">Active</SelectItem>
                                     <SelectItem value="inactive">Inactive</SelectItem>
@@ -152,7 +206,9 @@ function ManageBranchesDialog({ branches }: { branches: BranchListItem[] }) {
                             </Select>
                         </div>
                         <div className="col-span-5 flex justify-end">
-                            <Button size="sm" disabled={createForm.processing}>Create</Button>
+                            <Button size="sm" disabled={createForm.processing}>
+                                Create
+                            </Button>
                         </div>
                         {Object.values(createForm.errors).length > 0 && (
                             <div className="col-span-5 text-xs text-red-600">{Object.values(createForm.errors).join(', ')}</div>
@@ -170,13 +226,17 @@ function ManageBranchesDialog({ branches }: { branches: BranchListItem[] }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {branches.map(b => <BranchRow key={b.id} branch={b} />)}
+                                {branches.map((b) => (
+                                    <BranchRow key={b.id} branch={b} />
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <DialogFooter>
-                    <DialogClose asChild><Button variant="outline">Close</Button></DialogClose>
+                    <DialogClose asChild>
+                        <Button variant="outline">Close</Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -184,7 +244,7 @@ function ManageBranchesDialog({ branches }: { branches: BranchListItem[] }) {
 }
 
 function BranchRow({ branch }: { branch: BranchListItem }) {
-    const statusForm = useForm<{ status:'active'|'inactive' }>({ status: branch.status });
+    const statusForm = useForm<{ status: 'active' | 'inactive' }>({ status: branch.status });
     const deleteForm = useForm();
     const locked = (branch.products_count ?? 0) > 0 || (branch.sales_count ?? 0) > 0;
 
@@ -206,7 +266,7 @@ function BranchRow({ branch }: { branch: BranchListItem }) {
                 <button
                     onClick={toggle}
                     disabled={statusForm.processing || deleteForm.processing}
-                    className={`rounded border px-2 py-0.5 border-black ${statusForm.data.status==='active'?'bg-white':'bg-black text-white'} text-[10px]`}
+                    className={`rounded border border-black px-2 py-0.5 ${statusForm.data.status === 'active' ? 'bg-white' : 'bg-black text-white'} text-[10px]`}
                 >
                     {statusForm.data.status}
                 </button>
@@ -217,9 +277,11 @@ function BranchRow({ branch }: { branch: BranchListItem }) {
                 <button
                     onClick={remove}
                     disabled={locked || statusForm.processing || deleteForm.processing}
-                    className={`rounded border px-2 py-0.5 border-black text-[10px] ${locked?'opacity-40 cursor-not-allowed':'bg-white'}`}
-                    title={locked? 'Has products or sales':'Delete'}
-                >Del</button>
+                    className={`rounded border border-black px-2 py-0.5 text-[10px] ${locked ? 'cursor-not-allowed opacity-40' : 'bg-white'}`}
+                    title={locked ? 'Has products or sales' : 'Delete'}
+                >
+                    Del
+                </button>
             </td>
         </tr>
     );

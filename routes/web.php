@@ -49,6 +49,10 @@ Route::middleware(['auth', 'role:2'])->group(function () {
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
     Route::post('/products/delete/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
+    // Product management: change branch and stock
+    Route::post('/products/{id}/branch', [ProductController::class, 'updateBranch'])->name('products.updateBranch');
+    Route::post('/products/{id}/stock', [ProductController::class, 'updateStock'])->name('products.updateStock');
+
     // Supplier management (admin)
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
     Route::get('/suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
