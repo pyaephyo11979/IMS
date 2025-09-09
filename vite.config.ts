@@ -27,7 +27,7 @@ export default defineConfig({
         host: true,
         port: 5173,
         hmr:{
-            host:env.VITE_HMR_HOST ,
+            host:env.VITE_HMR_HOST,
             port: 5173
         },
         cors: true
