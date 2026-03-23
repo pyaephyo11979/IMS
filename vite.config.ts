@@ -23,13 +23,4 @@ export default defineConfig({
             'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
-    server:{
-        host: true,
-        port: 5173,
-        hmr:{
-            host:env.VITE_HMR_HOST,
-            port: 5173
-        },
-        cors: true
-    }
 });
