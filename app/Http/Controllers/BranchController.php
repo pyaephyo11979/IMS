@@ -96,6 +96,6 @@ class BranchController extends Controller
 
         $branch->update(['status' => $validated['status']]);
 
-    return redirect()->back()->with('success', 'Branch status updated.');
+        return redirect()->back()->with('success', 'Branch status updated.');
     }
 }

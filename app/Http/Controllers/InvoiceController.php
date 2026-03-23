@@ -129,6 +129,7 @@ class InvoiceController extends Controller
 
         $invoices = $query->latest()->paginate(10)->through(function (Invoice $invoice) {
             $salesTotal = $invoice->sales->sum('total_amount');
+
             return [
                 'id' => $invoice->id,
                 'invoice_number' => $invoice->invoice_number,

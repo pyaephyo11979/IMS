@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useForm, usePage } from '@inertiajs/react';
@@ -42,11 +41,10 @@ export function ProductCard({ product }: { product: ProductLite }) {
     function submitBranchUpdate(newBranchId: string) {
         if (!newBranchId) return;
         // Send branch_id as query string
-        post(route('products.updateBranch', product.id) + `?branch_id=${encodeURIComponent(newBranchId)}`,  {
+        post(route('products.updateBranch', product.id) + `?branch_id=${encodeURIComponent(newBranchId)}`, {
             preserveScroll: true,
         });
     }
-
 
     return (
         <Card>

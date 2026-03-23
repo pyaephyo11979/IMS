@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { usePage } from '@inertiajs/react';
-import { BookOpen, Building2, ChartLine, Folder, LayoutGrid, PackageCheck, ReceiptText, Users, UsersRound } from 'lucide-react';
+import { Building2, ChartLine, LayoutGrid, PackageCheck, ReceiptText, Users, UsersRound } from 'lucide-react';
 import AppLogo from './app-logo';
 
 export function AppSidebar() {
